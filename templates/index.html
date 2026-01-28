@@ -1044,6 +1044,36 @@
                 };
             }
 
+            // Calculate category from position (based on angle/quadrant)
+            function getCategoryFromPosition(x, y) {
+                const dx = x - center;
+                const dy = y - center;
+                let angle = Math.atan2(dy, dx);
+                // Adjust angle to match category layout (starts at top, -PI/2)
+                angle = angle + Math.PI / 2;
+                if (angle < 0) angle += Math.PI * 2;
+                // Each category spans PI/2 radians (90 degrees)
+                const categoryIndex = Math.floor((angle / (Math.PI * 2)) * categories.length) % categories.length;
+                return categories[categoryIndex];
+            }
+
+            // Calculate time horizon from position (based on distance from center)
+            function getTimeHorizonFromPosition(x, y) {
+                const dx = x - center;
+                const dy = y - center;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const normalizedRadius = distance / maxRadius;
+
+                // Determine time horizon based on radius thresholds
+                if (normalizedRadius <= 0.475) {
+                    return 'Near-term (0-5 years)';
+                } else if (normalizedRadius <= 0.725) {
+                    return 'Mid-term (5-10 years)';
+                } else {
+                    return 'Long-term (10-20 years)';
+                }
+            }
+
             // Constrain position within radar bounds
             function constrainToRadar(x, y) {
                 const dx = x - center;
@@ -1145,7 +1175,22 @@
                 const dot = draggedDot;
                 dot.style.cursor = 'grab';
 
-                if (!isDragging) {
+                if (isDragging) {
+                    // Update item's category and time horizon based on new position
+                    const newX = parseFloat(dot.getAttribute('cx'));
+                    const newY = parseFloat(dot.getAttribute('cy'));
+                    const newCategory = getCategoryFromPosition(newX, newY);
+                    const newTimeHorizon = getTimeHorizonFromPosition(newX, newY);
+
+                    // Update the stored item
+                    dot._phenomenonItem.category = newCategory;
+                    dot._phenomenonItem.time_horizon = newTimeHorizon;
+
+                    // Select the dot and show updated scorecard
+                    allDots.forEach(d => d.classList.remove('selected'));
+                    dot.classList.add('selected');
+                    openScorecard(dot._phenomenonItem);
+                } else {
                     // It was a click, not a drag
                     allDots.forEach(d => d.classList.remove('selected'));
                     dot.classList.add('selected');
