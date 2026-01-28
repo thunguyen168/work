@@ -337,6 +337,22 @@
             margin-bottom: 10px;
         }
 
+        .ref-id {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0, 174, 239, 0.2);
+            border: 1px solid rgba(0, 174, 239, 0.5);
+            color: #00aeef;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
         .phenomenon-tags {
             display: flex;
             gap: 8px;
@@ -945,8 +961,9 @@
                            </div>`
                         : '';
 
+                    const refId = index + 1;
                     card.innerHTML = `
-                        <h3 class="phenomenon-title">${phenomenon.title || 'Untitled'}</h3>
+                        <h3 class="phenomenon-title"><span class="ref-id">${refId}</span>${phenomenon.title || 'Untitled'}</h3>
                         <div class="phenomenon-tags">
                             ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
                             ${phenomenon.time_horizon ? `<span class="tag horizon">${phenomenon.time_horizon}</span>` : ''}
@@ -1014,7 +1031,8 @@
             const implications = document.getElementById('scorecardImplications');
             const sources = document.getElementById('scorecardSources');
 
-            document.getElementById('scorecardTitle').textContent = item.title || 'Signal details';
+            const refNum = item.index != null ? item.index + 1 : null;
+            document.getElementById('scorecardTitle').innerHTML = (refNum ? `<span class="ref-id">${refNum}</span>` : '') + (item.title || 'Signal details');
             meta.innerHTML = '';
 
             if (item.type) {
@@ -1395,11 +1413,26 @@
                     dot.style.cursor = 'grabbing';
                 });
 
+                // Add reference number label on the dot
+                const refLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                refLabel.setAttribute('x', x);
+                refLabel.setAttribute('y', y + 1);
+                refLabel.setAttribute('fill', '#ffffff');
+                refLabel.setAttribute('font-size', '9');
+                refLabel.setAttribute('font-weight', '700');
+                refLabel.setAttribute('text-anchor', 'middle');
+                refLabel.setAttribute('dominant-baseline', 'middle');
+                refLabel.setAttribute('pointer-events', 'none');
+                refLabel.setAttribute('data-ref-index', index);
+                refLabel.textContent = index + 1;
+
                 // Store item reference on dot for click handler
                 dot._phenomenonItem = item;
+                dot._refLabel = refLabel;
 
                 allDots.push(dot);
                 svg.appendChild(dot);
+                svg.appendChild(refLabel);
             });
 
             // Mouse move on SVG - handle drag
@@ -1419,6 +1452,10 @@
                     const constrained = constrainToRadar(coords.x, coords.y);
                     draggedDot.setAttribute('cx', constrained.x);
                     draggedDot.setAttribute('cy', constrained.y);
+                    if (draggedDot._refLabel) {
+                        draggedDot._refLabel.setAttribute('x', constrained.x);
+                        draggedDot._refLabel.setAttribute('y', constrained.y + 1);
+                    }
                 }
             });
 
