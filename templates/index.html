@@ -226,9 +226,9 @@
 
         .radar-wrapper {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 200px;
-            gap: 20px;
-            align-items: center;
+            grid-template-columns: minmax(0, 1fr) 220px;
+            gap: 28px;
+            align-items: start;
         }
 
         .radar-canvas {
@@ -467,6 +467,15 @@
             line-height: 1.5;
         }
 
+        .scorecard-list {
+            margin-top: 6px;
+            padding-left: 18px;
+        }
+
+        .scorecard-list li {
+            margin-bottom: 4px;
+        }
+
         .scorecard-link {
             color: var(--lockton-blue);
             text-decoration: none;
@@ -693,6 +702,29 @@
             return categories.slice(0, 4);
         }
 
+        function scoreSource(source) {
+            if (!source || !source.link) {
+                return 0;
+            }
+            const url = source.link.toLowerCase();
+            let score = 0;
+            if (url.startsWith('https://')) score += 2;
+            if (url.includes('.gov') || url.includes('.edu') || url.includes('.org')) score += 3;
+            if (url.includes('reuters') || url.includes('bloomberg') || url.includes('nature') || url.includes('who.int')) {
+                score += 2;
+            }
+            if (source.title && source.title.length > 20) score += 1;
+            if (source.snippet && source.snippet.length > 80) score += 1;
+            if (url.includes('twitter') || url.includes('reddit') || url.includes('facebook')) score -= 2;
+            return score;
+        }
+
+        function getTopSources(sources, limit = 5) {
+            return [...sources]
+                .sort((a, b) => scoreSource(b) - scoreSource(a))
+                .slice(0, limit);
+        }
+
         function openScorecard(item) {
             const card = document.getElementById('scorecard');
             const meta = document.getElementById('scorecardMeta');
@@ -717,20 +749,31 @@
             overview.innerHTML = `<strong>Overview:</strong> ${item.summary || 'No summary available yet.'}`;
 
             if (item.drivers && item.drivers.length > 0) {
-                drivers.innerHTML = `<strong>Key drivers:</strong> ${item.drivers.join(', ')}`;
+                drivers.innerHTML = `
+                    <strong>Key drivers:</strong>
+                    <ul class="scorecard-list">
+                        ${item.drivers.map(driver => `<li>${driver}</li>`).join('')}
+                    </ul>
+                `;
             } else {
                 drivers.innerHTML = '';
             }
 
             if (item.implications && item.implications.length > 0) {
-                implications.innerHTML = `<strong>Impacts:</strong> ${item.implications.join(', ')}`;
+                implications.innerHTML = `
+                    <strong>Impacts:</strong>
+                    <ul class="scorecard-list">
+                        ${item.implications.map(impact => `<li>${impact}</li>`).join('')}
+                    </ul>
+                `;
             } else {
                 implications.innerHTML = '';
             }
 
             const scanSources = (window.latestScanData && window.latestScanData.sources) ? window.latestScanData.sources : [];
-            if (scanSources.length > 0) {
-                sources.innerHTML = `<strong>Sources:</strong> ${scanSources.map(source => (
+            const topSources = getTopSources(scanSources);
+            if (topSources.length > 0) {
+                sources.innerHTML = `<strong>Sources:</strong> ${topSources.map(source => (
                     `<a class="scorecard-link" href="${source.link}" target="_blank">${source.title}</a>`
                 )).join(' • ')}`;
             } else {
@@ -788,20 +831,21 @@
                 'Long-term (10-20 years)': 0.85
             };
 
-            const size = 520;
-            const center = size / 2;
-            const maxRadius = size * 0.45;
+            const size = 500;
+            const padding = 40;
+            const center = size / 2 + padding;
+            const maxRadius = size * 0.42;
 
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+            svg.setAttribute('viewBox', `0 0 ${size + padding * 2} ${size + padding * 2}`);
             svg.setAttribute('width', '100%');
             svg.setAttribute('height', '100%');
 
             const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             background.setAttribute('x', 0);
             background.setAttribute('y', 0);
-            background.setAttribute('width', size);
-            background.setAttribute('height', size);
+            background.setAttribute('width', size + padding * 2);
+            background.setAttribute('height', size + padding * 2);
             background.setAttribute('fill', 'transparent');
             svg.appendChild(background);
 
@@ -829,8 +873,8 @@
                 svg.appendChild(axis);
 
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 22));
-                label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 22));
+                label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 18));
+                label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 18));
                 label.setAttribute('fill', '#b8b8b8');
                 label.setAttribute('font-size', '11');
                 label.setAttribute('text-anchor', 'middle');
@@ -896,10 +940,14 @@
                 const label = horizon.split(' ')[0].toLowerCase();
                 return `${count} ${label}-term`;
             }).join(', ');
-            const sampleSources = (data.sources || []).slice(0, 3).map(source => source.title).filter(Boolean).join('; ');
+            const sampleSources = getTopSources(data.sources || []).map(source => source.title).filter(Boolean).join('; ');
+            const leadCategory = categories[0];
+            const leadHorizon = horizons.sort((a, b) => (
+                items.filter(item => item.time_horizon === b).length - items.filter(item => item.time_horizon === a).length
+            ))[0];
 
             summary.innerHTML = `
-                The scan surfaced <strong>${items.length} phenomena</strong> across <strong>${categories.length} categories</strong> (${categoriesText}), with ${horizonCounts} signals by time horizon. We drew on <strong>${sourcesCount} sources</strong>${sampleSources ? `, including ${sampleSources}` : ''}.
+                <strong>${items.length} phenomena</strong> signal momentum led by <strong>${leadCategory}</strong>, with the heaviest concentration in the <strong>${leadHorizon.toLowerCase()}</strong> horizon. The mix spans ${categoriesText}, balancing ${horizonCounts}. Evidence was drawn from <strong>${sourcesCount} sources</strong>${sampleSources ? `, led by ${sampleSources}` : ''}.
             `;
         }
     </script>
