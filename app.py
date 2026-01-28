@@ -179,14 +179,15 @@ def scan_topic():
                 unique_results.append(r)
         
         # Step 2: Analyze with Claude (single API call)
-        analysis = analyze_with_claude(topic, unique_results[:10])  # Limit to 10 sources
+        analysis_sources = unique_results[:10]
+        analysis = analyze_with_claude(topic, analysis_sources)  # Limit to 10 sources
         
         return jsonify({
             'success': True,
             'topic': analysis['topic'],
             'phenomena_count': len(analysis['phenomena']),
             'phenomena': analysis['phenomena'],
-            'sources': analysis['sources']
+            'sources': unique_results
         })
         
     except anthropic.APIError as e:
