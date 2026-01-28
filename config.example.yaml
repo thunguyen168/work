@@ -1,0 +1,66 @@
+# AI Foresight Scanner - Example Configuration
+# Copy this file to config.yaml and customize as needed
+
+# Search engine settings
+search:
+  # Search backend: "auto", "serper", or "brave"
+  # "auto" will detect from available API keys
+  backend: auto
+
+  # Number of results to fetch per search query
+  results_per_query: 10
+
+  # Use Johari Window heuristic for comprehensive coverage
+  # This searches across multiple perspectives (open, blind, hidden, unknown)
+  use_johari_heuristic: true
+
+  # Optional: Restrict searches to specific domains
+  # Leave empty to use default credible sources list
+  preferred_domains: []
+  # Example:
+  # preferred_domains:
+  #   - nature.com
+  #   - science.org
+  #   - weforum.org
+  #   - mckinsey.com
+
+# AI analyzer settings
+analyzer:
+  # Claude model to use
+  # Options: claude-sonnet-4-20250514, claude-opus-4-20250514
+  model: claude-sonnet-4-20250514
+
+  # Temperature for AI responses (0.0 - 1.0)
+  # Lower = more focused, Higher = more creative
+  temperature: 0.7
+
+  # Maximum tokens per AI response
+  max_tokens: 4096
+
+  # Strict source validation mode
+  # When true, only accepts peer-reviewed, intergovernmental, and think tank sources
+  strict_source_validation: false
+
+# Output settings
+output:
+  # Directory for generated outputs
+  output_dir: ./output
+
+  # Output formats to generate
+  # Options: html, json, markdown
+  formats:
+    - html
+    - json
+    - markdown
+
+  # Generate interactive radar chart
+  generate_radar: true
+
+  # Radar chart dimensions
+  radar_width: 800
+  radar_height: 800
+
+# API Keys (optional - can also be set via environment variables)
+# RECOMMENDED: Use environment variables instead of storing keys in config
+# anthropic_api_key: sk-ant-...
+# search_api_key: ...
