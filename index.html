@@ -158,6 +158,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .results-title {
@@ -220,6 +222,70 @@
         .phenomenon-summary {
             color: #bbb;
             line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .phenomenon-section {
+            margin-top: 15px;
+        }
+        
+        .phenomenon-section-title {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .phenomenon-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .phenomenon-list li {
+            color: #bbb;
+            padding: 4px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        .phenomenon-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #00d9ff;
+        }
+        
+        .sources-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sources-title {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        
+        .source-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .source-item a {
+            color: #00d9ff;
+            text-decoration: none;
+        }
+        
+        .source-item a:hover {
+            text-decoration: underline;
+        }
+        
+        .source-snippet {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
         }
         
         .error-message {
@@ -271,13 +337,13 @@
                 <span onclick="setTopic('artificial intelligence in healthcare')">AI in healthcare</span> • 
                 <span onclick="setTopic('quantum computing')">quantum computing</span> • 
                 <span onclick="setTopic('future of work')">future of work</span> • 
-                <span onclick="setTopic('climate adaptation technologies')">climate tech</span>
+                <span onclick="setTopic('renewable energy')">renewable energy</span>
             </div>
         </div>
         
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p class="loading-text">Scanning the future... This may take a minute.</p>
+            <p class="loading-text">Scanning the future... This may take 10-20 seconds.</p>
         </div>
         
         <div class="error-message" id="errorMessage"></div>
@@ -288,6 +354,11 @@
                 <span class="results-count" id="resultsCount">0 phenomena found</span>
             </div>
             <div id="phenomenaList"></div>
+            
+            <div class="sources-section" id="sourcesSection">
+                <h3 class="sources-title">📚 Sources</h3>
+                <div id="sourcesList"></div>
+            </div>
         </div>
         
         <footer>
@@ -306,7 +377,7 @@
             const topic = document.getElementById('topicInput').value.trim();
             if (!topic) return;
             
-            // Show loading, hide results and errors
+            // Show loading
             document.getElementById('loading').classList.add('active');
             document.getElementById('results').classList.remove('active');
             document.getElementById('errorMessage').classList.remove('active');
@@ -327,7 +398,6 @@
                     throw new Error(data.error);
                 }
                 
-                // Display results
                 displayResults(topic, data);
                 
             } catch (error) {
@@ -343,6 +413,7 @@
             document.getElementById('resultsTitle').textContent = `Results for "${topic}"`;
             document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found`;
             
+            // Display phenomena
             const list = document.getElementById('phenomenaList');
             list.innerHTML = '';
             
@@ -351,27 +422,53 @@
                     const card = document.createElement('div');
                     card.className = 'phenomenon-card';
                     
-                    // Handle different data structures
-                    const title = phenomenon.title || phenomenon.name || 'Untitled';
-                    const summary = phenomenon.summary || phenomenon.description || '';
-                    const type = phenomenon.type || phenomenon.classification?.type || '';
-                    const horizon = phenomenon.time_horizon || phenomenon.classification?.time_horizon || '';
-                    const tags = phenomenon.tags || [];
+                    const driversHtml = phenomenon.drivers && phenomenon.drivers.length > 0
+                        ? `<div class="phenomenon-section">
+                            <div class="phenomenon-section-title">Key Drivers</div>
+                            <ul class="phenomenon-list">
+                                ${phenomenon.drivers.map(d => `<li>${d}</li>`).join('')}
+                            </ul>
+                           </div>`
+                        : '';
+                    
+                    const implicationsHtml = phenomenon.implications && phenomenon.implications.length > 0
+                        ? `<div class="phenomenon-section">
+                            <div class="phenomenon-section-title">Implications</div>
+                            <ul class="phenomenon-list">
+                                ${phenomenon.implications.map(i => `<li>${i}</li>`).join('')}
+                            </ul>
+                           </div>`
+                        : '';
                     
                     card.innerHTML = `
-                        <h3 class="phenomenon-title">${title}</h3>
+                        <h3 class="phenomenon-title">${phenomenon.title || 'Untitled'}</h3>
                         <div class="phenomenon-tags">
-                            ${type ? `<span class="tag type">${type}</span>` : ''}
-                            ${horizon ? `<span class="tag horizon">${horizon}</span>` : ''}
-                            ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
+                            ${phenomenon.time_horizon ? `<span class="tag horizon">${phenomenon.time_horizon}</span>` : ''}
                         </div>
-                        <p class="phenomenon-summary">${summary}</p>
+                        <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
+                        ${driversHtml}
+                        ${implicationsHtml}
                     `;
                     
                     list.appendChild(card);
                 });
-            } else {
-                list.innerHTML = '<p style="color: #888; text-align: center;">No phenomena found for this topic.</p>';
+            }
+            
+            // Display sources
+            const sourcesList = document.getElementById('sourcesList');
+            sourcesList.innerHTML = '';
+            
+            if (data.sources && data.sources.length > 0) {
+                data.sources.forEach(source => {
+                    const item = document.createElement('div');
+                    item.className = 'source-item';
+                    item.innerHTML = `
+                        <a href="${source.link}" target="_blank">${source.title}</a>
+                        <p class="source-snippet">${source.snippet}</p>
+                    `;
+                    sourcesList.appendChild(item);
+                });
             }
             
             document.getElementById('results').classList.add('active');
