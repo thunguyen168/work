@@ -185,17 +185,18 @@
 
         .radar-section {
             margin: 30px 0 40px;
-            background: rgba(0, 0, 0, 0.75);
+            background: radial-gradient(ellipse at center, rgba(0, 40, 60, 0.4) 0%, rgba(0, 0, 0, 0.85) 70%);
             border-radius: 16px;
             padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 174, 239, 0.2);
+            box-shadow: 0 0 40px rgba(0, 174, 239, 0.1), inset 0 0 60px rgba(0, 174, 239, 0.05);
         }
 
         .radar-summary {
-            margin-top: 16px;
-            padding: 16px;
+            margin-top: 20px;
+            padding: 0;
             border-radius: 12px;
-            background: rgba(54, 54, 54, 0.3);
+            background: transparent;
             color: var(--lockton-silver);
             font-size: 0.9rem;
             line-height: 1.5;
@@ -203,6 +204,115 @@
 
         .radar-summary strong {
             color: var(--lockton-white);
+        }
+
+        .radar-summary-stats {
+            padding: 14px 18px;
+            background: rgba(54, 54, 54, 0.25);
+            border-radius: 10px;
+            border-left: 3px solid var(--lockton-blue);
+            margin-bottom: 16px;
+        }
+
+        .phenomenon-detail-card {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(30, 30, 40, 0.7) 100%);
+            border: 1px solid rgba(0, 174, 239, 0.3);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 174, 239, 0.1);
+            animation: fadeSlideIn 0.3s ease-out;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phenomenon-detail-card .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .phenomenon-detail-card .detail-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--lockton-white);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .phenomenon-detail-card .detail-badge {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .phenomenon-detail-card .detail-badge.wild-card {
+            background: linear-gradient(135deg, #822ebf 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 0 12px rgba(130, 46, 191, 0.5);
+        }
+
+        .phenomenon-detail-card .detail-badge.strengthening {
+            background: linear-gradient(135deg, #7eb142 0%, #a3e635 100%);
+            color: #1a2e05;
+            box-shadow: 0 0 12px rgba(126, 177, 66, 0.5);
+        }
+
+        .phenomenon-detail-card .detail-badge.weakening {
+            background: linear-gradient(135deg, #ff2147 0%, #f87171 100%);
+            color: white;
+            box-shadow: 0 0 12px rgba(255, 33, 71, 0.5);
+        }
+
+        .phenomenon-detail-card .detail-badge.weak-signal {
+            background: linear-gradient(135deg, #ff732b 0%, #fb923c 100%);
+            color: #451a03;
+            box-shadow: 0 0 12px rgba(255, 115, 43, 0.5);
+        }
+
+        .phenomenon-detail-card .detail-timerange {
+            font-size: 0.9rem;
+            color: var(--lockton-blue);
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .phenomenon-detail-card .detail-timerange::before {
+            content: "⏱";
+            font-size: 0.85rem;
+        }
+
+        .phenomenon-detail-card .detail-description {
+            color: #d0d0d0;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        .phenomenon-detail-card .detail-hint {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+            color: var(--lockton-silver);
+            font-style: italic;
         }
 
         .radar-header {
@@ -269,6 +379,45 @@
             height: 10px;
             border-radius: 50%;
             display: inline-block;
+        }
+
+        /* Radar dot effects */
+        .radar-canvas svg circle.radar-dot {
+            transition: all 0.25s ease;
+            filter: drop-shadow(0 0 4px currentColor);
+        }
+
+        .radar-canvas svg circle.radar-dot:hover {
+            transform-origin: center;
+            filter: drop-shadow(0 0 12px currentColor) drop-shadow(0 0 20px currentColor);
+        }
+
+        .radar-canvas svg circle.radar-dot.selected {
+            stroke-width: 3;
+            stroke: white;
+            filter: drop-shadow(0 0 15px currentColor) drop-shadow(0 0 25px currentColor);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .radar-canvas svg circle.radar-ring {
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes ringPulse {
+            0%, 100% {
+                stroke-opacity: 0.15;
+            }
+            50% {
+                stroke-opacity: 0.25;
+            }
         }
 
         @media (max-width: 760px) {
@@ -849,19 +998,53 @@
             background.setAttribute('fill', 'transparent');
             svg.appendChild(background);
 
-            horizons.forEach(horizon => {
+            // Add SVG defs for glow filters
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+
+            // Create glow filters for each type color
+            Object.entries(typeColors).forEach(([type, color]) => {
+                const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+                const filterId = 'glow-' + type.replace(/\s+/g, '-').toLowerCase();
+                filter.setAttribute('id', filterId);
+                filter.setAttribute('x', '-50%');
+                filter.setAttribute('y', '-50%');
+                filter.setAttribute('width', '200%');
+                filter.setAttribute('height', '200%');
+
+                const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+                feGaussianBlur.setAttribute('stdDeviation', '3');
+                feGaussianBlur.setAttribute('result', 'coloredBlur');
+                filter.appendChild(feGaussianBlur);
+
+                const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+                const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+                feMergeNode1.setAttribute('in', 'coloredBlur');
+                const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+                feMergeNode2.setAttribute('in', 'SourceGraphic');
+                feMerge.appendChild(feMergeNode1);
+                feMerge.appendChild(feMergeNode2);
+                filter.appendChild(feMerge);
+
+                defs.appendChild(filter);
+            });
+            svg.appendChild(defs);
+
+            horizons.forEach((horizon, hIndex) => {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', center);
                 circle.setAttribute('cy', center);
                 circle.setAttribute('r', maxRadius * horizonRadii[horizon]);
                 circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', 'rgba(255,255,255,0.12)');
-                circle.setAttribute('stroke-dasharray', '4 6');
+                circle.setAttribute('stroke', 'rgba(0, 174, 239, 0.2)');
+                circle.setAttribute('stroke-width', '1.5');
+                circle.setAttribute('stroke-dasharray', '6 8');
+                circle.classList.add('radar-ring');
+                circle.style.animationDelay = `${hIndex * 0.5}s`;
                 svg.appendChild(circle);
             });
 
             categories.forEach((category, index) => {
-                const angle = (Math.PI * 2 * index) / categories.length;
+                const angle = (Math.PI * 2 * index) / categories.length - Math.PI / 2;
                 const x = center + Math.cos(angle) * maxRadius;
                 const y = center + Math.sin(angle) * maxRadius;
                 const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -869,43 +1052,70 @@
                 axis.setAttribute('y1', center);
                 axis.setAttribute('x2', x);
                 axis.setAttribute('y2', y);
-                axis.setAttribute('stroke', 'rgba(255,255,255,0.18)');
+                axis.setAttribute('stroke', 'rgba(0, 174, 239, 0.25)');
+                axis.setAttribute('stroke-width', '1');
                 svg.appendChild(axis);
 
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 18));
-                label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 18));
-                label.setAttribute('fill', '#b8b8b8');
-                label.setAttribute('font-size', '11');
+                label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 22));
+                label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 22));
+                label.setAttribute('fill', '#00aeef');
+                label.setAttribute('font-size', '12');
+                label.setAttribute('font-weight', '500');
                 label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('dominant-baseline', 'middle');
                 label.textContent = category;
                 svg.appendChild(label);
             });
+
+            // Store all dots for selection management
+            const allDots = [];
 
             items.forEach((item, index) => {
                 const category = categories.includes(item.category) ? item.category : categories[0];
                 const categoryIndex = categories.indexOf(category);
                 const angleOffset = (index + 1) / (items.length + 2);
-                const angle = (Math.PI * 2 * categoryIndex) / categories.length + angleOffset * 0.6 - 0.3;
+                const angle = (Math.PI * 2 * categoryIndex) / categories.length - Math.PI / 2 + angleOffset * 0.6 - 0.3;
                 const radiusScale = horizonRadii[item.time_horizon] || 0.5;
                 const jitter = (index % 5) * 0.04;
                 const radius = maxRadius * (radiusScale + jitter);
                 const x = center + Math.cos(angle) * radius;
                 const y = center + Math.sin(angle) * radius;
+
+                const color = typeColors[item.type] || '#00aeef';
+                const filterId = 'glow-' + (item.type || 'default').replace(/\s+/g, '-').toLowerCase();
+
                 const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 dot.setAttribute('cx', x);
                 dot.setAttribute('cy', y);
-                dot.setAttribute('r', 6);
-                dot.setAttribute('fill', typeColors[item.type] || '#00aeef');
-                dot.setAttribute('opacity', 0.9);
-                dot.setAttribute('stroke', 'rgba(0,0,0,0.4)');
-                dot.setAttribute('stroke-width', 1);
+                dot.setAttribute('r', 8);
+                dot.setAttribute('fill', color);
+                dot.setAttribute('opacity', '1');
+                dot.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+                dot.setAttribute('stroke-width', '2');
+                dot.setAttribute('filter', `url(#${filterId})`);
                 dot.setAttribute('role', 'button');
+                dot.setAttribute('data-index', index);
+                dot.classList.add('radar-dot');
                 dot.style.cursor = 'pointer';
+                dot.style.color = color;
+
                 const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
                 title.textContent = item.title || 'Phenomenon';
                 dot.appendChild(title);
-                dot.addEventListener('click', () => openScorecard(item));
+
+                dot.addEventListener('click', () => {
+                    // Deselect all dots
+                    allDots.forEach(d => d.classList.remove('selected'));
+                    // Select this dot
+                    dot.classList.add('selected');
+                    // Update summary card
+                    updateSummaryCard(item, items, data, categories, horizons);
+                    // Also open scorecard
+                    openScorecard(item);
+                });
+
+                allDots.push(dot);
                 svg.appendChild(dot);
             });
 
@@ -940,14 +1150,69 @@
                 const label = horizon.split(' ')[0].toLowerCase();
                 return `${count} ${label}-term`;
             }).join(', ');
-            const sampleSources = getTopSources(data.sources || []).map(source => source.title).filter(Boolean).join('; ');
             const leadCategory = categories[0];
-            const leadHorizon = horizons.sort((a, b) => (
+            const sortedHorizons = [...horizons].sort((a, b) => (
                 items.filter(item => item.time_horizon === b).length - items.filter(item => item.time_horizon === a).length
-            ))[0];
+            ));
+            const leadHorizon = sortedHorizons[0];
+
+            // Initial summary with stats and prompt to select
+            summary.innerHTML = `
+                <div class="radar-summary-stats">
+                    <strong>${items.length} phenomena</strong> detected across <strong>${categories.length} categories</strong>, with concentration in the <strong>${leadHorizon.toLowerCase()}</strong> horizon. Evidence from <strong>${sourcesCount} sources</strong>.
+                </div>
+                <div class="phenomenon-detail-card">
+                    <div class="detail-header">
+                        <h4 class="detail-title">Select a Signal</h4>
+                    </div>
+                    <p class="detail-description">Click on any dot in the radar to view detailed information about that phenomenon, including its type, time horizon, and full description.</p>
+                    <p class="detail-hint">Signals are color-coded by type: green for strengthening trends, red for weakening trends, orange for weak signals, and purple for wild cards.</p>
+                </div>
+            `;
+        }
+
+        function updateSummaryCard(item, items, data, categories, horizons) {
+            const summary = document.getElementById('radarSummary');
+            const sourcesCount = data.sources ? data.sources.length : 0;
+            const sortedHorizons = [...horizons].sort((a, b) => (
+                items.filter(i => i.time_horizon === b).length - items.filter(i => i.time_horizon === a).length
+            ));
+            const leadHorizon = sortedHorizons[0];
+
+            // Determine badge class based on type
+            let badgeClass = '';
+            const typeLower = (item.type || '').toLowerCase();
+            if (typeLower.includes('wild')) badgeClass = 'wild-card';
+            else if (typeLower.includes('strengthening')) badgeClass = 'strengthening';
+            else if (typeLower.includes('weakening')) badgeClass = 'weakening';
+            else if (typeLower.includes('weak')) badgeClass = 'weak-signal';
+
+            // Format time range based on time horizon
+            let timeRange = '';
+            if (item.time_horizon) {
+                const currentYear = new Date().getFullYear();
+                if (item.time_horizon.includes('Near-term')) {
+                    timeRange = `${currentYear} - ${currentYear + 5}`;
+                } else if (item.time_horizon.includes('Mid-term')) {
+                    timeRange = `${currentYear} - ${currentYear + 10}`;
+                } else if (item.time_horizon.includes('Long-term')) {
+                    timeRange = `${currentYear} - ${currentYear + 20}`;
+                }
+            }
 
             summary.innerHTML = `
-                <strong>${items.length} phenomena</strong> signal momentum led by <strong>${leadCategory}</strong>, with the heaviest concentration in the <strong>${leadHorizon.toLowerCase()}</strong> horizon. The mix spans ${categoriesText}, balancing ${horizonCounts}. Evidence was drawn from <strong>${sourcesCount} sources</strong>${sampleSources ? `, led by ${sampleSources}` : ''}.
+                <div class="radar-summary-stats">
+                    <strong>${items.length} phenomena</strong> detected across <strong>${categories.length} categories</strong>, with concentration in the <strong>${leadHorizon.toLowerCase()}</strong> horizon. Evidence from <strong>${sourcesCount} sources</strong>.
+                </div>
+                <div class="phenomenon-detail-card">
+                    <div class="detail-header">
+                        <h4 class="detail-title">${item.title || 'Untitled Phenomenon'}</h4>
+                        ${item.type ? `<span class="detail-badge ${badgeClass}">${item.type}</span>` : ''}
+                    </div>
+                    ${timeRange ? `<div class="detail-timerange">${timeRange}</div>` : ''}
+                    <p class="detail-description">${item.summary || 'No description available.'}</p>
+                    ${item.category ? `<p class="detail-hint">Category: ${item.category}</p>` : ''}
+                </div>
             `;
         }
     </script>
