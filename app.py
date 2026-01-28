@@ -71,6 +71,12 @@ def analyze_with_claude(topic: str, search_results: list) -> dict:
 
 First, decide on 2-4 concise category labels that describe the landscape (e.g., "Technology", "Policy", "Market", "Society"). Use only these category labels for every phenomenon.
 
+IMPORTANT: You MUST include at least one phenomenon of each signal type:
+- At least 1 "Strengthening Trend" (a trend gaining momentum)
+- At least 1 "Weakening Trend" (a trend losing momentum or declining)
+- At least 1 "Weak Signal" (an early indicator that could become significant)
+- At least 1 "Wild Card" (a low-probability but high-impact potential event)
+
 SEARCH RESULTS:
 {sources_text}
 

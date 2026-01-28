@@ -304,10 +304,10 @@
 
         @keyframes ringPulse {
             0%, 100% {
-                stroke-opacity: 0.15;
+                stroke-opacity: 0.4;
             }
             50% {
-                stroke-opacity: 0.25;
+                stroke-opacity: 0.6;
             }
         }
 
@@ -926,9 +926,9 @@
                 circle.setAttribute('cy', center);
                 circle.setAttribute('r', maxRadius * horizonRadii[horizon]);
                 circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', 'rgba(0, 174, 239, 0.2)');
-                circle.setAttribute('stroke-width', '1.5');
-                circle.setAttribute('stroke-dasharray', '6 8');
+                circle.setAttribute('stroke', 'rgba(0, 174, 239, 0.5)');
+                circle.setAttribute('stroke-width', '2');
+                circle.setAttribute('stroke-dasharray', '8 6');
                 circle.classList.add('radar-ring');
                 circle.style.animationDelay = `${hIndex * 0.5}s`;
                 svg.appendChild(circle);
