@@ -921,45 +921,6 @@
                 { years: 20, radius: 0.85, label: currentYear + 20 }
             ];
 
-            // Draw year rings
-            yearIntervals.forEach((interval, index) => {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', center);
-                circle.setAttribute('cy', center);
-                circle.setAttribute('r', maxRadius * interval.radius);
-                circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', index === 0 ? 'rgba(0, 174, 239, 0.8)' : 'rgba(0, 174, 239, 0.5)');
-                circle.setAttribute('stroke-width', index === 0 ? '3' : '2');
-                circle.setAttribute('stroke-dasharray', index === 0 ? 'none' : '8 6');
-                circle.classList.add('radar-ring');
-                circle.style.animationDelay = `${index * 0.5}s`;
-                svg.appendChild(circle);
-
-                // Add year label on the right side of each ring (except center)
-                if (index > 0) {
-                    const yearLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    yearLabel.setAttribute('x', center + maxRadius * interval.radius + 8);
-                    yearLabel.setAttribute('y', center + 4);
-                    yearLabel.setAttribute('fill', 'rgba(0, 174, 239, 0.7)');
-                    yearLabel.setAttribute('font-size', '11');
-                    yearLabel.setAttribute('font-weight', '500');
-                    yearLabel.setAttribute('text-anchor', 'start');
-                    yearLabel.textContent = interval.label;
-                    svg.appendChild(yearLabel);
-                }
-            });
-
-            // Center "NOW" label
-            const nowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nowLabel.setAttribute('x', center);
-            nowLabel.setAttribute('y', center + 4);
-            nowLabel.setAttribute('fill', '#00aeef');
-            nowLabel.setAttribute('font-size', '12');
-            nowLabel.setAttribute('font-weight', '700');
-            nowLabel.setAttribute('text-anchor', 'middle');
-            nowLabel.textContent = 'NOW';
-            svg.appendChild(nowLabel);
-
             // Time arrow pointing outward (bottom right diagonal)
             const arrowAngle = Math.PI / 4; // 45 degrees (bottom-right)
             const arrowStartRadius = maxRadius * 0.15;
@@ -995,19 +956,47 @@
             arrowHead.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
             svg.appendChild(arrowHead);
 
-            // "FUTURE" label at arrow tip
-            const futureLabelX = center + Math.cos(arrowAngle) * (arrowEndRadius + 20);
-            const futureLabelY = center + Math.sin(arrowAngle) * (arrowEndRadius + 20);
-            const futureLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            futureLabel.setAttribute('x', futureLabelX);
-            futureLabel.setAttribute('y', futureLabelY);
-            futureLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
-            futureLabel.setAttribute('font-size', '11');
-            futureLabel.setAttribute('font-weight', '600');
-            futureLabel.setAttribute('text-anchor', 'middle');
-            futureLabel.setAttribute('transform', `rotate(45, ${futureLabelX}, ${futureLabelY})`);
-            futureLabel.textContent = 'FUTURE →';
-            svg.appendChild(futureLabel);
+            // Draw year rings
+            yearIntervals.forEach((interval, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', center);
+                circle.setAttribute('cy', center);
+                circle.setAttribute('r', maxRadius * interval.radius);
+                circle.setAttribute('fill', 'none');
+                circle.setAttribute('stroke', index === 0 ? 'rgba(0, 174, 239, 0.8)' : 'rgba(0, 174, 239, 0.5)');
+                circle.setAttribute('stroke-width', index === 0 ? '3' : '2');
+                circle.setAttribute('stroke-dasharray', index === 0 ? 'none' : '8 6');
+                circle.classList.add('radar-ring');
+                circle.style.animationDelay = `${index * 0.5}s`;
+                svg.appendChild(circle);
+
+                // Add year label along the arrow line (except center which gets special treatment)
+                if (index > 0) {
+                    const labelRadius = maxRadius * interval.radius;
+                    const labelX = center + Math.cos(arrowAngle) * labelRadius + 12;
+                    const labelY = center + Math.sin(arrowAngle) * labelRadius - 8;
+                    const yearLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    yearLabel.setAttribute('x', labelX);
+                    yearLabel.setAttribute('y', labelY);
+                    yearLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.7)');
+                    yearLabel.setAttribute('font-size', '11');
+                    yearLabel.setAttribute('font-weight', '500');
+                    yearLabel.setAttribute('text-anchor', 'start');
+                    yearLabel.textContent = interval.label;
+                    svg.appendChild(yearLabel);
+                }
+            });
+
+            // Center current year label
+            const nowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            nowLabel.setAttribute('x', center);
+            nowLabel.setAttribute('y', center + 4);
+            nowLabel.setAttribute('fill', '#00aeef');
+            nowLabel.setAttribute('font-size', '12');
+            nowLabel.setAttribute('font-weight', '700');
+            nowLabel.setAttribute('text-anchor', 'middle');
+            nowLabel.textContent = currentYear;
+            svg.appendChild(nowLabel);
 
             categories.forEach((category, index) => {
                 const angle = (Math.PI * 2 * index) / categories.length - Math.PI / 2;
