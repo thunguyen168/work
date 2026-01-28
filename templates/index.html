@@ -533,6 +533,208 @@
                 margin-bottom: 20px;
             }
         }
+
+        /* Download Modal Styles */
+        .download-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 100;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .download-modal-overlay.active {
+            display: flex;
+        }
+
+        .download-modal {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            border: 1px solid rgba(0, 174, 239, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .download-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .download-modal-title {
+            font-size: 1.3rem;
+            color: var(--lockton-blue);
+        }
+
+        .download-modal-close {
+            background: none;
+            border: none;
+            color: var(--lockton-white);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+
+        .download-modal-close:hover {
+            color: var(--lockton-blue);
+        }
+
+        .download-modal-body {
+            padding: 25px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .edit-phenomenon {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .edit-phenomenon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .edit-phenomenon-number {
+            background: var(--lockton-blue);
+            color: var(--lockton-black);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .edit-field {
+            margin-bottom: 12px;
+        }
+
+        .edit-field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--lockton-silver);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .edit-field input,
+        .edit-field textarea,
+        .edit-field select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--lockton-white);
+            transition: border-color 0.2s;
+        }
+
+        .edit-field input:focus,
+        .edit-field textarea:focus,
+        .edit-field select:focus {
+            outline: none;
+            border-color: var(--lockton-blue);
+        }
+
+        .edit-field textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .edit-field select {
+            cursor: pointer;
+        }
+
+        .edit-field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .edit-field-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .download-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .download-btn {
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .download-btn-primary {
+            background: linear-gradient(135deg, var(--lockton-blue), #7bd2f7);
+            color: var(--lockton-black);
+        }
+
+        .download-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 174, 239, 0.3);
+        }
+
+        .download-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--lockton-white);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .download-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .download-report-btn {
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--lockton-white);
+            background: rgba(0, 174, 239, 0.2);
+            border: 1px solid rgba(0, 174, 239, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .download-report-btn:hover {
+            background: rgba(0, 174, 239, 0.3);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -574,7 +776,10 @@
         <div class="results" id="results">
             <div class="results-header">
                 <h2 class="results-title" id="resultsTitle">Results</h2>
-                <span class="results-count" id="resultsCount">0 phenomena found</span>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="results-count" id="resultsCount">0 phenomena found</span>
+                    <button class="download-report-btn" id="downloadReportBtn" onclick="openDownloadModal()">Download Report</button>
+                </div>
             </div>
             <div class="scorecard" id="scorecard">
                 <div class="scorecard-header">
@@ -605,6 +810,23 @@
             <div class="sources-section" id="sourcesSection">
                 <h3 class="sources-title">Sources</h3>
                 <div id="sourcesList"></div>
+            </div>
+        </div>
+
+        <!-- Download/Edit Modal -->
+        <div class="download-modal-overlay" id="downloadModal">
+            <div class="download-modal">
+                <div class="download-modal-header">
+                    <h3 class="download-modal-title">Edit & Download Report</h3>
+                    <button class="download-modal-close" onclick="closeDownloadModal()">✕</button>
+                </div>
+                <div class="download-modal-body" id="downloadModalBody">
+                    <!-- Phenomena edit forms will be populated here -->
+                </div>
+                <div class="download-modal-footer">
+                    <button class="download-btn download-btn-secondary" onclick="closeDownloadModal()">Cancel</button>
+                    <button class="download-btn download-btn-primary" onclick="downloadReport()">Download HTML Report</button>
+                </div>
             </div>
         </div>
 
@@ -1267,6 +1489,270 @@
                 <strong>${items.length} phenomena</strong> signal momentum led by <strong>${leadCategory}</strong>, with the heaviest concentration in the <strong>${leadHorizon.toLowerCase()}</strong> horizon. The mix spans ${categoriesText}, balancing ${horizonCounts}. Evidence was drawn from <strong>${sourcesCount} sources</strong>${sampleSources ? `, led by ${sampleSources}` : ''}.
             `;
         }
+
+        // Download modal functionality
+        let editablePhenomena = [];
+
+        function openDownloadModal() {
+            if (!window.latestScanData || !window.latestScanData.phenomena) {
+                alert('No data available to download. Please run a scan first.');
+                return;
+            }
+
+            // Deep copy the phenomena for editing
+            editablePhenomena = JSON.parse(JSON.stringify(window.latestScanData.phenomena));
+
+            const modalBody = document.getElementById('downloadModalBody');
+            modalBody.innerHTML = '';
+
+            const types = ['Strengthening Trend', 'Weakening Trend', 'Weak Signal', 'Wild Card'];
+            const categories = ['Strategic', 'Operational', 'Financial', 'Regulatory'];
+            const horizons = ['Near-term (0-5 years)', 'Mid-term (5-10 years)', 'Long-term (10-20 years)'];
+
+            editablePhenomena.forEach((phenomenon, index) => {
+                const editCard = document.createElement('div');
+                editCard.className = 'edit-phenomenon';
+                editCard.innerHTML = `
+                    <div class="edit-phenomenon-header">
+                        <span class="edit-phenomenon-number">${index + 1}</span>
+                        <div class="edit-field" style="flex: 1; margin-bottom: 0;">
+                            <label for="edit-title-${index}">Title</label>
+                            <input type="text" id="edit-title-${index}" value="${escapeHtml(phenomenon.title || '')}" onchange="updatePhenomenon(${index}, 'title', this.value)">
+                        </div>
+                    </div>
+                    <div class="edit-field-row">
+                        <div class="edit-field">
+                            <label for="edit-type-${index}">Signal Type</label>
+                            <select id="edit-type-${index}" onchange="updatePhenomenon(${index}, 'type', this.value)">
+                                ${types.map(type => `<option value="${type}" ${phenomenon.type === type ? 'selected' : ''}>${type}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label for="edit-category-${index}">Category</label>
+                            <select id="edit-category-${index}" onchange="updatePhenomenon(${index}, 'category', this.value)">
+                                ${categories.map(cat => `<option value="${cat}" ${phenomenon.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="edit-field">
+                            <label for="edit-horizon-${index}">Time Horizon</label>
+                            <select id="edit-horizon-${index}" onchange="updatePhenomenon(${index}, 'time_horizon', this.value)">
+                                ${horizons.map(horizon => `<option value="${horizon}" ${phenomenon.time_horizon === horizon ? 'selected' : ''}>${horizon}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="edit-field">
+                        <label for="edit-summary-${index}">Summary</label>
+                        <textarea id="edit-summary-${index}" rows="2" onchange="updatePhenomenon(${index}, 'summary', this.value)">${escapeHtml(phenomenon.summary || '')}</textarea>
+                    </div>
+                    <div class="edit-field">
+                        <label for="edit-drivers-${index}">Key Drivers (one per line)</label>
+                        <textarea id="edit-drivers-${index}" rows="2" onchange="updatePhenomenonArray(${index}, 'drivers', this.value)">${(phenomenon.drivers || []).join('\n')}</textarea>
+                    </div>
+                    <div class="edit-field">
+                        <label for="edit-implications-${index}">Implications (one per line)</label>
+                        <textarea id="edit-implications-${index}" rows="2" onchange="updatePhenomenonArray(${index}, 'implications', this.value)">${(phenomenon.implications || []).join('\n')}</textarea>
+                    </div>
+                `;
+                modalBody.appendChild(editCard);
+            });
+
+            document.getElementById('downloadModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updatePhenomenon(index, field, value) {
+            if (editablePhenomena[index]) {
+                editablePhenomena[index][field] = value;
+            }
+        }
+
+        function updatePhenomenonArray(index, field, value) {
+            if (editablePhenomena[index]) {
+                editablePhenomena[index][field] = value.split('\n').filter(line => line.trim() !== '');
+            }
+        }
+
+        function downloadReport() {
+            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
+            const radarSvg = document.getElementById('radarCanvas').innerHTML;
+            const sources = window.latestScanData.sources || [];
+
+            // Generate the HTML report
+            const reportHtml = generateReportHtml(topic, editablePhenomena, radarSvg, sources);
+
+            // Create and trigger download
+            const blob = new Blob([reportHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `foresight-report-${topic.toLowerCase().replace(/\s+/g, '-')}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            closeDownloadModal();
+        }
+
+        function generateReportHtml(topic, phenomena, radarSvg, sources) {
+            const typeColors = {
+                'Strengthening Trend': '#7eb142',
+                'Weakening Trend': '#ff2147',
+                'Weak Signal': '#ff732b',
+                'Wild Card': '#822ebf'
+            };
+
+            const phenomenaHtml = phenomena.map((p, i) => `
+                <div class="phenomenon">
+                    <h3>${i + 1}. ${escapeHtml(p.title || 'Untitled')}</h3>
+                    <div class="tags">
+                        <span class="tag type" style="background: ${typeColors[p.type] || '#00aeef'}20; border-color: ${typeColors[p.type] || '#00aeef'};">${escapeHtml(p.type || 'Unknown')}</span>
+                        <span class="tag">${escapeHtml(p.category || 'Uncategorized')}</span>
+                        <span class="tag">${escapeHtml(p.time_horizon || 'Unknown')}</span>
+                    </div>
+                    <p class="summary">${escapeHtml(p.summary || '')}</p>
+                    ${p.drivers && p.drivers.length > 0 ? `
+                        <div class="section">
+                            <h4>Key Drivers</h4>
+                            <ul>${p.drivers.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>
+                        </div>
+                    ` : ''}
+                    ${p.implications && p.implications.length > 0 ? `
+                        <div class="section">
+                            <h4>Implications</h4>
+                            <ul>${p.implications.map(imp => `<li>${escapeHtml(imp)}</li>`).join('')}</ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            const sourcesHtml = sources.length > 0 ? `
+                <div class="sources-section">
+                    <h2>Sources</h2>
+                    ${sources.map(s => `
+                        <div class="source">
+                            <a href="${escapeHtml(s.link)}" target="_blank">${escapeHtml(s.title)}</a>
+                            <p>${escapeHtml(s.snippet || '')}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foresight Report: ${escapeHtml(topic)}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2rem; color: #00aeef; margin-bottom: 10px; }
+        .subtitle { color: #888888; font-size: 1rem; }
+        .radar-section {
+            background: radial-gradient(ellipse at center, rgba(0, 40, 60, 0.4) 0%, rgba(0, 0, 0, 0.85) 70%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(0, 174, 239, 0.2);
+        }
+        .radar-title { font-size: 1.2rem; color: #00aeef; margin-bottom: 15px; }
+        .radar-canvas { max-width: 600px; margin: 0 auto; }
+        .radar-canvas svg { width: 100%; height: auto; }
+        h2 { font-size: 1.5rem; color: #00aeef; margin-bottom: 20px; }
+        .phenomenon {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .phenomenon h3 { font-size: 1.1rem; color: #ffffff; margin-bottom: 12px; }
+        .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .tag {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: rgba(136, 136, 136, 0.2);
+            border: 1px solid rgba(136, 136, 136, 0.4);
+        }
+        .tag.type { color: #ffffff; }
+        .summary { color: #d6d6d6; line-height: 1.6; margin-bottom: 15px; }
+        .section { margin-top: 15px; }
+        .section h4 { font-size: 0.85rem; color: #888888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section ul { list-style: none; padding-left: 15px; }
+        .section li { color: #d6d6d6; padding: 4px 0; position: relative; }
+        .section li::before { content: "→"; position: absolute; left: -15px; color: #00aeef; }
+        .sources-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .source { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .source a { color: #00aeef; text-decoration: none; }
+        .source a:hover { text-decoration: underline; }
+        .source p { font-size: 0.9rem; color: #888888; margin-top: 5px; }
+        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #888888; font-size: 0.85rem; }
+        @media print {
+            body { background: white; color: black; }
+            .phenomenon { border: 1px solid #ddd; background: #f9f9f9; }
+            .tag { border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Strategic Foresight Report</h1>
+            <p class="subtitle">${escapeHtml(topic)} - Generated ${new Date().toLocaleDateString()}</p>
+        </header>
+
+        <div class="radar-section">
+            <h3 class="radar-title">Strategic Radar Map</h3>
+            <div class="radar-canvas">${radarSvg}</div>
+        </div>
+
+        <h2>Identified Phenomena (${phenomena.length})</h2>
+        ${phenomenaHtml}
+
+        ${sourcesHtml}
+
+        <footer>
+            <p>Generated by Strategic Foresight Scanner - Powered by Claude AI</p>
+        </footer>
+    </div>
+</body>
+</html>`;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('downloadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDownloadModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('downloadModal').classList.contains('active')) {
+                closeDownloadModal();
+            }
+        });
     </script>
 </body>
 </html>
