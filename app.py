@@ -5,7 +5,11 @@ A simple Flask web app that lets users scan topics for future trends.
 
 import os
 import asyncio
+import nest_asyncio
 from flask import Flask, render_template, request, jsonify
+
+# Apply nest_asyncio to allow nested event loops
+nest_asyncio.apply()
 
 # Import the scanner components (from the existing src folder)
 from src.cli import ForesightScanner
