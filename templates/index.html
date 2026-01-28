@@ -1,478 +1,923 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Foresight Scanner</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #e0e0e0;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            color: #00d9ff;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-        }
-        
-        .subtitle {
-            color: #888;
-            font-size: 1.1rem;
-        }
-        
-        .search-box {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .search-form {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .search-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 15px 20px;
-            font-size: 1rem;
-            border: 2px solid rgba(0, 217, 255, 0.3);
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #00d9ff;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
-        }
-        
-        .search-input::placeholder {
-            color: #666;
-        }
-        
-        .scan-button {
-            padding: 15px 40px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1a1a2e;
-            background: linear-gradient(135deg, #00d9ff, #00ff88);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .scan-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
-        }
-        
-        .scan-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .examples {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        .examples span {
-            color: #00d9ff;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        
-        .examples span:hover {
-            color: #00ff88;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 60px 20px;
-        }
-        
-        .loading.active {
-            display: block;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(0, 217, 255, 0.2);
-            border-top-color: #00d9ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            color: #888;
-            font-size: 1.1rem;
-        }
-        
-        .results {
-            display: none;
-        }
-        
-        .results.active {
-            display: block;
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .results-title {
-            font-size: 1.5rem;
-            color: #00d9ff;
-        }
-        
-        .results-count {
-            background: rgba(0, 217, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .phenomenon-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .phenomenon-card:hover {
-            border-color: rgba(0, 217, 255, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .phenomenon-title {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        
-        .phenomenon-tags {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        .tag {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            background: rgba(0, 217, 255, 0.15);
-            color: #00d9ff;
-        }
-        
-        .tag.type {
-            background: rgba(0, 255, 136, 0.15);
-            color: #00ff88;
-        }
-        
-        .tag.horizon {
-            background: rgba(255, 170, 0, 0.15);
-            color: #ffaa00;
-        }
-        
-        .phenomenon-summary {
-            color: #bbb;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .phenomenon-section {
-            margin-top: 15px;
-        }
-        
-        .phenomenon-section-title {
-            font-size: 0.85rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        
-        .phenomenon-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .phenomenon-list li {
-            color: #bbb;
-            padding: 4px 0;
-            padding-left: 15px;
-            position: relative;
-        }
-        
-        .phenomenon-list li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: #00d9ff;
-        }
-        
-        .sources-section {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sources-title {
-            font-size: 1.2rem;
-            color: #888;
-            margin-bottom: 15px;
-        }
-        
-        .source-item {
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .source-item a {
-            color: #00d9ff;
-            text-decoration: none;
-        }
-        
-        .source-item a:hover {
-            text-decoration: underline;
-        }
-        
-        .source-snippet {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .error-message {
-            display: none;
-            background: rgba(255, 80, 80, 0.1);
-            border: 1px solid rgba(255, 80, 80, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            color: #ff8080;
-            margin-top: 20px;
-        }
-        
-        .error-message.active {
-            display: block;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #666;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🔮 AI Foresight Scanner</h1>
-            <p class="subtitle">Discover trends, weak signals, and future disruptions</p>
-        </header>
-        
-        <div class="search-box">
-            <form class="search-form" id="scanForm">
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    id="topicInput"
-                    placeholder="Enter a topic to scan (e.g., artificial intelligence in healthcare)"
-                    required
-                >
-                <button type="submit" class="scan-button" id="scanButton">
-                    Scan Future
-                </button>
-            </form>
-            <div class="examples">
-                Try: 
-                <span onclick="setTopic('artificial intelligence in healthcare')">AI in healthcare</span> • 
-                <span onclick="setTopic('quantum computing')">quantum computing</span> • 
-                <span onclick="setTopic('future of work')">future of work</span> • 
-                <span onclick="setTopic('renewable energy')">renewable energy</span>
-            </div>
-        </div>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p class="loading-text">Scanning the future... This may take 10-20 seconds.</p>
-        </div>
-        
-        <div class="error-message" id="errorMessage"></div>
-        
-        <div class="results" id="results">
-            <div class="results-header">
-                <h2 class="results-title" id="resultsTitle">Results</h2>
-                <span class="results-count" id="resultsCount">0 phenomena found</span>
-            </div>
-            <div id="phenomenaList"></div>
-            
-            <div class="sources-section" id="sourcesSection">
-                <h3 class="sources-title">📚 Sources</h3>
-                <div id="sourcesList"></div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>Powered by Claude AI • Built with AI Foresight Scanner</p>
-        </footer>
-    </div>
-    
-    <script>
-        function setTopic(topic) {
-            document.getElementById('topicInput').value = topic;
-        }
-        
-        document.getElementById('scanForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const topic = document.getElementById('topicInput').value.trim();
-            if (!topic) return;
-            
-            // Show loading
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('results').classList.remove('active');
-            document.getElementById('errorMessage').classList.remove('active');
-            document.getElementById('scanButton').disabled = true;
-            
-            try {
-                const formData = new FormData();
-                formData.append('topic', topic);
-                
-                const response = await fetch('/scan', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                
-                displayResults(topic, data);
-                
-            } catch (error) {
-                document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
-                document.getElementById('errorMessage').classList.add('active');
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('scanButton').disabled = false;
-            }
-        });
-        
-        function displayResults(topic, data) {
-            document.getElementById('resultsTitle').textContent = `Results for "${topic}"`;
-            document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found`;
-            
-            // Display phenomena
-            const list = document.getElementById('phenomenaList');
-            list.innerHTML = '';
-            
-            if (data.phenomena && data.phenomena.length > 0) {
-                data.phenomena.forEach(phenomenon => {
-                    const card = document.createElement('div');
-                    card.className = 'phenomenon-card';
-                    
-                    const driversHtml = phenomenon.drivers && phenomenon.drivers.length > 0
-                        ? `<div class="phenomenon-section">
-                            <div class="phenomenon-section-title">Key Drivers</div>
-                            <ul class="phenomenon-list">
-                                ${phenomenon.drivers.map(d => `<li>${d}</li>`).join('')}
-                            </ul>
-                           </div>`
-                        : '';
-                    
-                    const implicationsHtml = phenomenon.implications && phenomenon.implications.length > 0
-                        ? `<div class="phenomenon-section">
-                            <div class="phenomenon-section-title">Implications</div>
-                            <ul class="phenomenon-list">
-                                ${phenomenon.implications.map(i => `<li>${i}</li>`).join('')}
-                            </ul>
-                           </div>`
-                        : '';
-                    
-                    card.innerHTML = `
-                        <h3 class="phenomenon-title">${phenomenon.title || 'Untitled'}</h3>
-                        <div class="phenomenon-tags">
-                            ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
-                            ${phenomenon.time_horizon ? `<span class="tag horizon">${phenomenon.time_horizon}</span>` : ''}
-                        </div>
-                        <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
-                        ${driversHtml}
-                        ${implicationsHtml}
-                    `;
-                    
-                    list.appendChild(card);
-                });
-            }
-            
-            // Display sources
-            const sourcesList = document.getElementById('sourcesList');
-            sourcesList.innerHTML = '';
-            
-            if (data.sources && data.sources.length > 0) {
-                data.sources.forEach(source => {
-                    const item = document.createElement('div');
-                    item.className = 'source-item';
-                    item.innerHTML = `
-                        <a href="${source.link}" target="_blank">${source.title}</a>
-                        <p class="source-snippet">${source.snippet}</p>
-                    `;
-                    sourcesList.appendChild(item);
-                });
-            }
-            
-            document.getElementById('results').classList.add('active');
-        }
-    </script>
-</body>
-</html>
+diff --git a/templates/index.html b/templates/index.html
+index b1fb60964ff966ec2a26d68e697e2af84f4bd5b6..d690a8a44e77d87bf29e22fee8e6a2c86c9acb34 100644
+--- a/templates/index.html
++++ b/templates/index.html
+@@ -1,380 +1,563 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>AI Foresight Scanner</title>
+     <style>
+         * {
+             margin: 0;
+             padding: 0;
+             box-sizing: border-box;
+         }
+         
++        :root {
++            --lockton-navy: #003a70;
++            --lockton-blue: #005a9c;
++            --lockton-gold: #f2a900;
++            --lockton-slate: #0b2343;
++            --lockton-mist: #dce6f2;
++            --lockton-ice: #9bb7d6;
++        }
++
+         body {
+             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
++            background: linear-gradient(135deg, var(--lockton-navy) 0%, var(--lockton-slate) 50%, #07172b 100%);
+             min-height: 100vh;
+-            color: #e0e0e0;
++            color: #f4f7fb;
+         }
+         
+         .container {
+             max-width: 900px;
+             margin: 0 auto;
+             padding: 40px 20px;
+         }
+         
+         header {
+             text-align: center;
+             margin-bottom: 40px;
+         }
+         
+         h1 {
+             font-size: 2.5rem;
+-            color: #00d9ff;
++            color: var(--lockton-gold);
+             margin-bottom: 10px;
+-            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
++            text-shadow: 0 0 18px rgba(242, 169, 0, 0.35);
+         }
+         
+         .subtitle {
+-            color: #888;
++            color: var(--lockton-ice);
+             font-size: 1.1rem;
+         }
+         
+         .search-box {
+-            background: rgba(255, 255, 255, 0.05);
++            background: rgba(8, 24, 48, 0.6);
+             border-radius: 16px;
+             padding: 30px;
+             margin-bottom: 30px;
+-            border: 1px solid rgba(255, 255, 255, 0.1);
++            border: 1px solid rgba(255, 255, 255, 0.08);
+         }
+         
+         .search-form {
+             display: flex;
+             gap: 15px;
+             flex-wrap: wrap;
+         }
+         
+         .search-input {
+             flex: 1;
+             min-width: 250px;
+             padding: 15px 20px;
+             font-size: 1rem;
+-            border: 2px solid rgba(0, 217, 255, 0.3);
++            border: 2px solid rgba(242, 169, 0, 0.35);
+             border-radius: 10px;
+-            background: rgba(0, 0, 0, 0.3);
++            background: rgba(7, 23, 43, 0.7);
+             color: #fff;
+             transition: all 0.3s ease;
+         }
+         
+         .search-input:focus {
+             outline: none;
+-            border-color: #00d9ff;
+-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
++            border-color: var(--lockton-gold);
++            box-shadow: 0 0 20px rgba(242, 169, 0, 0.25);
+         }
+         
+         .search-input::placeholder {
+-            color: #666;
++            color: #8aa2bf;
+         }
+         
+         .scan-button {
+             padding: 15px 40px;
+             font-size: 1rem;
+             font-weight: 600;
+-            color: #1a1a2e;
+-            background: linear-gradient(135deg, #00d9ff, #00ff88);
++            color: #07172b;
++            background: linear-gradient(135deg, var(--lockton-gold), #ffd066);
+             border: none;
+             border-radius: 10px;
+             cursor: pointer;
+             transition: all 0.3s ease;
+         }
+         
+         .scan-button:hover {
+             transform: translateY(-2px);
+-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
++            box-shadow: 0 10px 30px rgba(242, 169, 0, 0.3);
+         }
+         
+         .scan-button:disabled {
+             opacity: 0.6;
+             cursor: not-allowed;
+             transform: none;
+         }
+         
+         .examples {
+             margin-top: 20px;
+             font-size: 0.9rem;
+-            color: #666;
++            color: #8aa2bf;
+         }
+         
+         .examples span {
+-            color: #00d9ff;
++            color: var(--lockton-gold);
+             cursor: pointer;
+             transition: color 0.2s;
+         }
+         
+         .examples span:hover {
+-            color: #00ff88;
++            color: #ffd166;
+         }
+         
+         .loading {
+             display: none;
+             text-align: center;
+             padding: 60px 20px;
+         }
+         
+         .loading.active {
+             display: block;
+         }
+         
+         .spinner {
+             width: 50px;
+             height: 50px;
+-            border: 4px solid rgba(0, 217, 255, 0.2);
+-            border-top-color: #00d9ff;
++            border: 4px solid rgba(242, 169, 0, 0.2);
++            border-top-color: var(--lockton-gold);
+             border-radius: 50%;
+             animation: spin 1s linear infinite;
+             margin: 0 auto 20px;
+         }
+         
+         @keyframes spin {
+             to { transform: rotate(360deg); }
+         }
+         
+         .loading-text {
+-            color: #888;
++            color: #a9bdd6;
+             font-size: 1.1rem;
+         }
+         
+         .results {
+             display: none;
+         }
+         
+         .results.active {
+             display: block;
+         }
+         
+         .results-header {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 20px;
+             flex-wrap: wrap;
+             gap: 10px;
+         }
+         
+         .results-title {
+             font-size: 1.5rem;
+-            color: #00d9ff;
++            color: var(--lockton-gold);
+         }
+         
+         .results-count {
+-            background: rgba(0, 217, 255, 0.2);
++            background: rgba(0, 90, 156, 0.35);
+             padding: 5px 15px;
+             border-radius: 20px;
+             font-size: 0.9rem;
+         }
++
++        .radar-section {
++            margin: 30px 0 40px;
++            background: rgba(5, 17, 33, 0.7);
++            border-radius: 16px;
++            padding: 25px;
++            border: 1px solid rgba(255, 255, 255, 0.08);
++        }
++
++        .radar-header {
++            display: flex;
++            justify-content: space-between;
++            align-items: center;
++            gap: 15px;
++            flex-wrap: wrap;
++            margin-bottom: 15px;
++        }
++
++        .radar-title {
++            font-size: 1.2rem;
++            color: var(--lockton-gold);
++        }
++
++        .radar-subtitle {
++            font-size: 0.85rem;
++            color: #9ab0ca;
++        }
++
++        .radar-wrapper {
++            display: grid;
++            grid-template-columns: minmax(0, 1fr) 200px;
++            gap: 20px;
++            align-items: center;
++        }
++
++        .radar-canvas {
++            width: 100%;
++            aspect-ratio: 1 / 1;
++            max-width: 520px;
++            margin: 0 auto;
++        }
++
++        .radar-legend {
++            display: grid;
++            gap: 12px;
++            color: #9cb2cb;
++            font-size: 0.85rem;
++        }
++
++        .legend-group {
++            display: grid;
++            gap: 8px;
++        }
++
++        .legend-title {
++            font-weight: 600;
++            color: #d7e3f3;
++            text-transform: uppercase;
++            font-size: 0.75rem;
++            letter-spacing: 1px;
++        }
++
++        .legend-item {
++            display: flex;
++            align-items: center;
++            gap: 8px;
++        }
++
++        .legend-swatch {
++            width: 10px;
++            height: 10px;
++            border-radius: 50%;
++            display: inline-block;
++        }
++
++        @media (max-width: 760px) {
++            .radar-wrapper {
++                grid-template-columns: 1fr;
++            }
++        }
+         
+         .phenomenon-card {
+-            background: rgba(255, 255, 255, 0.05);
++            background: rgba(7, 23, 43, 0.65);
+             border-radius: 12px;
+             padding: 25px;
+             margin-bottom: 20px;
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             transition: all 0.3s ease;
+         }
+         
+         .phenomenon-card:hover {
+-            border-color: rgba(0, 217, 255, 0.3);
++            border-color: rgba(242, 169, 0, 0.35);
+             transform: translateY(-2px);
+         }
+         
+         .phenomenon-title {
+             font-size: 1.2rem;
+             color: #fff;
+             margin-bottom: 10px;
+         }
+         
+         .phenomenon-tags {
+             display: flex;
+             gap: 8px;
+             flex-wrap: wrap;
+             margin-bottom: 15px;
+         }
+         
+         .tag {
+             padding: 4px 12px;
+             border-radius: 15px;
+             font-size: 0.8rem;
+-            background: rgba(0, 217, 255, 0.15);
+-            color: #00d9ff;
++            background: rgba(0, 90, 156, 0.25);
++            color: #b8d0ea;
+         }
+         
+         .tag.type {
+-            background: rgba(0, 255, 136, 0.15);
+-            color: #00ff88;
++            background: rgba(242, 169, 0, 0.2);
++            color: #ffd066;
+         }
+         
+         .tag.horizon {
+-            background: rgba(255, 170, 0, 0.15);
+-            color: #ffaa00;
++            background: rgba(0, 58, 112, 0.4);
++            color: #9bb7d6;
+         }
+         
+         .phenomenon-summary {
+-            color: #bbb;
++            color: #c9d5e5;
+             line-height: 1.6;
+             margin-bottom: 15px;
+         }
+         
+         .phenomenon-section {
+             margin-top: 15px;
+         }
+         
+         .phenomenon-section-title {
+             font-size: 0.85rem;
+-            color: #888;
++            color: #9bb0c8;
+             text-transform: uppercase;
+             letter-spacing: 1px;
+             margin-bottom: 8px;
+         }
+         
+         .phenomenon-list {
+             list-style: none;
+             padding: 0;
+         }
+         
+         .phenomenon-list li {
+-            color: #bbb;
++            color: #c5d3e6;
+             padding: 4px 0;
+             padding-left: 15px;
+             position: relative;
+         }
+         
+         .phenomenon-list li::before {
+             content: "→";
+             position: absolute;
+             left: 0;
+-            color: #00d9ff;
++            color: var(--lockton-gold);
+         }
+         
+         .sources-section {
+             margin-top: 40px;
+             padding-top: 20px;
+             border-top: 1px solid rgba(255, 255, 255, 0.1);
+         }
+         
+         .sources-title {
+             font-size: 1.2rem;
+-            color: #888;
++            color: #a9bfd7;
+             margin-bottom: 15px;
+         }
+         
+         .source-item {
+             padding: 10px 0;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+         }
+         
+         .source-item a {
+-            color: #00d9ff;
++            color: var(--lockton-gold);
+             text-decoration: none;
+         }
+         
+         .source-item a:hover {
+             text-decoration: underline;
+         }
+         
+         .source-snippet {
+             font-size: 0.9rem;
+-            color: #666;
++            color: #9fb1c8;
+             margin-top: 5px;
+         }
+         
+         .error-message {
+             display: none;
+-            background: rgba(255, 80, 80, 0.1);
+-            border: 1px solid rgba(255, 80, 80, 0.3);
++            background: rgba(242, 120, 120, 0.12);
++            border: 1px solid rgba(242, 120, 120, 0.4);
+             border-radius: 10px;
+             padding: 20px;
+-            color: #ff8080;
++            color: #ffb3b3;
+             margin-top: 20px;
+         }
+         
+         .error-message.active {
+             display: block;
+         }
+         
+         footer {
+             text-align: center;
+             margin-top: 60px;
+             padding-top: 30px;
+             border-top: 1px solid rgba(255, 255, 255, 0.1);
+-            color: #666;
++            color: #90a7c4;
+             font-size: 0.9rem;
+         }
++
++        .scorecard {
++            position: fixed;
++            right: 30px;
++            top: 120px;
++            width: min(360px, 90vw);
++            background: rgba(7, 23, 43, 0.92);
++            border: 1px solid rgba(242, 169, 0, 0.35);
++            border-radius: 16px;
++            padding: 20px;
++            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
++            color: #f4f7fb;
++            display: none;
++            z-index: 10;
++        }
++
++        .scorecard.active {
++            display: block;
++        }
++
++        .scorecard-header {
++            display: flex;
++            justify-content: space-between;
++            align-items: flex-start;
++            gap: 10px;
++        }
++
++        .scorecard-title {
++            font-size: 1.1rem;
++            color: var(--lockton-gold);
++        }
++
++        .scorecard-close {
++            background: none;
++            border: none;
++            color: #d9e5f4;
++            font-size: 1.1rem;
++            cursor: pointer;
++        }
++
++        .scorecard-meta {
++            display: flex;
++            flex-wrap: wrap;
++            gap: 8px;
++            margin: 12px 0 10px;
++        }
++
++        .scorecard-section {
++            margin-top: 12px;
++            color: #c9d5e5;
++            font-size: 0.9rem;
++            line-height: 1.5;
++        }
++
++        .scorecard-link {
++            color: var(--lockton-gold);
++            text-decoration: none;
++            font-weight: 600;
++        }
++
++        .scorecard-link:hover {
++            text-decoration: underline;
++        }
++
++        @media (max-width: 960px) {
++            .scorecard {
++                position: static;
++                width: 100%;
++                margin-bottom: 20px;
++            }
++        }
+     </style>
+ </head>
+ <body>
+     <div class="container">
+         <header>
+             <h1>🔮 AI Foresight Scanner</h1>
+             <p class="subtitle">Discover trends, weak signals, and future disruptions</p>
+         </header>
+         
+         <div class="search-box">
+             <form class="search-form" id="scanForm">
+                 <input 
+                     type="text" 
+                     class="search-input" 
+                     id="topicInput"
+                     placeholder="Enter a topic to scan (e.g., artificial intelligence in healthcare)"
+                     required
+                 >
+                 <button type="submit" class="scan-button" id="scanButton">
+                     Scan Future
+                 </button>
+             </form>
+             <div class="examples">
+                 Try: 
+                 <span onclick="setTopic('artificial intelligence in healthcare')">AI in healthcare</span> • 
+                 <span onclick="setTopic('quantum computing')">quantum computing</span> • 
+                 <span onclick="setTopic('future of work')">future of work</span> • 
+                 <span onclick="setTopic('renewable energy')">renewable energy</span>
+             </div>
+         </div>
+         
+         <div class="loading" id="loading">
+             <div class="spinner"></div>
+             <p class="loading-text">Scanning the future... This may take 10-20 seconds.</p>
+         </div>
+         
+         <div class="error-message" id="errorMessage"></div>
+         
+         <div class="results" id="results">
+             <div class="results-header">
+                 <h2 class="results-title" id="resultsTitle">Results</h2>
+                 <span class="results-count" id="resultsCount">0 phenomena found</span>
+             </div>
++            <div class="scorecard" id="scorecard">
++                <div class="scorecard-header">
++                    <h3 class="scorecard-title" id="scorecardTitle">Select a signal</h3>
++                    <button class="scorecard-close" id="scorecardClose" aria-label="Close scorecard">✕</button>
++                </div>
++                <div class="scorecard-meta" id="scorecardMeta"></div>
++                <div class="scorecard-section" id="scorecardSummary"></div>
++                <div class="scorecard-section" id="scorecardDrivers"></div>
++                <div class="scorecard-section" id="scorecardImplications"></div>
++                <div class="scorecard-section" id="scorecardSource"></div>
++            </div>
++            <div class="radar-section">
++                <div class="radar-header">
++                    <div>
++                        <h3 class="radar-title">Strategic Radar Map</h3>
++                        <p class="radar-subtitle">Phenomena and search results plotted by type (angle) and time horizon (distance).</p>
++                    </div>
++                </div>
++                <div class="radar-wrapper">
++                    <div class="radar-canvas" id="radarCanvas"></div>
++                    <div class="radar-legend" id="radarLegend"></div>
++                </div>
++            </div>
+             <div id="phenomenaList"></div>
+             
+             <div class="sources-section" id="sourcesSection">
+                 <h3 class="sources-title">📚 Sources</h3>
+                 <div id="sourcesList"></div>
+             </div>
+         </div>
+         
+         <footer>
+             <p>Powered by Claude AI • Built with AI Foresight Scanner</p>
+         </footer>
+     </div>
+     
+     <script>
+         function setTopic(topic) {
+             document.getElementById('topicInput').value = topic;
+         }
+         
+         document.getElementById('scanForm').addEventListener('submit', async function(e) {
+             e.preventDefault();
+             
+             const topic = document.getElementById('topicInput').value.trim();
+             if (!topic) return;
+             
+             // Show loading
+@@ -388,61 +571,69 @@
+                 formData.append('topic', topic);
+                 
+                 const response = await fetch('/scan', {
+                     method: 'POST',
+                     body: formData
+                 });
+                 
+                 const data = await response.json();
+                 
+                 if (data.error) {
+                     throw new Error(data.error);
+                 }
+                 
+                 displayResults(topic, data);
+                 
+             } catch (error) {
+                 document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
+                 document.getElementById('errorMessage').classList.add('active');
+             } finally {
+                 document.getElementById('loading').classList.remove('active');
+                 document.getElementById('scanButton').disabled = false;
+             }
+         });
+         
+         function displayResults(topic, data) {
++            const sourcesCount = data.sources ? data.sources.length : 0;
+             document.getElementById('resultsTitle').textContent = `Results for "${topic}"`;
+-            document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found`;
++            document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found • ${sourcesCount} sources`;
++            document.getElementById('scorecard').classList.remove('active');
++            renderRadarMap(data);
+             
+             // Display phenomena
+             const list = document.getElementById('phenomenaList');
+             list.innerHTML = '';
+             
+             if (data.phenomena && data.phenomena.length > 0) {
+-                data.phenomena.forEach(phenomenon => {
++                data.phenomena.forEach((phenomenon, index) => {
+                     const card = document.createElement('div');
+                     card.className = 'phenomenon-card';
++                    card.addEventListener('click', () => openScorecard({
++                        ...phenomenon,
++                        kind: 'phenomenon',
++                        index
++                    }));
+                     
+                     const driversHtml = phenomenon.drivers && phenomenon.drivers.length > 0
+                         ? `<div class="phenomenon-section">
+                             <div class="phenomenon-section-title">Key Drivers</div>
+                             <ul class="phenomenon-list">
+                                 ${phenomenon.drivers.map(d => `<li>${d}</li>`).join('')}
+                             </ul>
+                            </div>`
+                         : '';
+                     
+                     const implicationsHtml = phenomenon.implications && phenomenon.implications.length > 0
+                         ? `<div class="phenomenon-section">
+                             <div class="phenomenon-section-title">Implications</div>
+                             <ul class="phenomenon-list">
+                                 ${phenomenon.implications.map(i => `<li>${i}</li>`).join('')}
+                             </ul>
+                            </div>`
+                         : '';
+                     
+                     card.innerHTML = `
+                         <h3 class="phenomenon-title">${phenomenon.title || 'Untitled'}</h3>
+                         <div class="phenomenon-tags">
+                             ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
+                             ${phenomenon.time_horizon ? `<span class="tag horizon">${phenomenon.time_horizon}</span>` : ''}
+                         </div>
+@@ -451,28 +642,240 @@
+                         ${implicationsHtml}
+                     `;
+                     
+                     list.appendChild(card);
+                 });
+             }
+             
+             // Display sources
+             const sourcesList = document.getElementById('sourcesList');
+             sourcesList.innerHTML = '';
+             
+             if (data.sources && data.sources.length > 0) {
+                 data.sources.forEach(source => {
+                     const item = document.createElement('div');
+                     item.className = 'source-item';
+                     item.innerHTML = `
+                         <a href="${source.link}" target="_blank">${source.title}</a>
+                         <p class="source-snippet">${source.snippet}</p>
+                     `;
+                     sourcesList.appendChild(item);
+                 });
+             }
+             
+             document.getElementById('results').classList.add('active');
+         }
++
++        function buildRadarItems(data) {
++            const phenomena = data.phenomena || [];
++            const sources = data.sources || [];
++            const items = phenomena.map((item, index) => ({
++                ...item,
++                kind: 'phenomenon',
++                index
++            }));
++
++            sources.forEach((source, index) => {
++                items.push({
++                    title: source.title,
++                    summary: source.snippet,
++                    type: 'Search Result',
++                    time_horizon: 'Near-term (0-5 years)',
++                    source_link: source.link,
++                    kind: 'source',
++                    index
++                });
++            });
++
++            return items;
++        }
++
++        function openScorecard(item) {
++            const card = document.getElementById('scorecard');
++            const meta = document.getElementById('scorecardMeta');
++            const summary = document.getElementById('scorecardSummary');
++            const drivers = document.getElementById('scorecardDrivers');
++            const implications = document.getElementById('scorecardImplications');
++            const source = document.getElementById('scorecardSource');
++
++            document.getElementById('scorecardTitle').textContent = item.title || 'Signal details';
++            meta.innerHTML = '';
++
++            if (item.type) {
++                meta.innerHTML += `<span class="tag type">${item.type}</span>`;
++            }
++            if (item.time_horizon) {
++                meta.innerHTML += `<span class="tag horizon">${item.time_horizon}</span>`;
++            }
++
++            summary.textContent = item.summary || 'No summary available yet.';
++
++            if (item.drivers && item.drivers.length > 0) {
++                drivers.innerHTML = `<strong>Key drivers:</strong> ${item.drivers.join(', ')}`;
++            } else {
++                drivers.innerHTML = '';
++            }
++
++            if (item.implications && item.implications.length > 0) {
++                implications.innerHTML = `<strong>Implications:</strong> ${item.implications.join(', ')}`;
++            } else {
++                implications.innerHTML = '';
++            }
++
++            if (item.source_link) {
++                source.innerHTML = `<a class="scorecard-link" href="${item.source_link}" target="_blank">Open source →</a>`;
++            } else {
++                source.innerHTML = '';
++            }
++
++            card.classList.add('active');
++        }
++
++        document.getElementById('scorecardClose').addEventListener('click', () => {
++            document.getElementById('scorecard').classList.remove('active');
++        });
++
++        function renderRadarMap(data) {
++            const container = document.getElementById('radarCanvas');
++            const legend = document.getElementById('radarLegend');
++            container.innerHTML = '';
++            legend.innerHTML = '';
++
++            const items = buildRadarItems(data);
++
++            if (!items || items.length === 0) {
++                container.innerHTML = '<p style="color:#9fb1c8;text-align:center;">No signals to plot yet.</p>';
++                return;
++            }
++
++            const types = [
++                'Strengthening Trend',
++                'Weakening Trend',
++                'Weak Signal',
++                'Wild Card',
++                'Search Result'
++            ];
++            const typeColors = {
++                'Strengthening Trend': '#7cd992',
++                'Weakening Trend': '#ff8b8b',
++                'Weak Signal': '#ffd166',
++                'Wild Card': '#7db5ff',
++                'Search Result': '#f2a900'
++            };
++            const horizons = [
++                'Near-term (0-5 years)',
++                'Mid-term (5-10 years)',
++                'Long-term (10-20 years)'
++            ];
++            const horizonRadii = {
++                'Near-term (0-5 years)': 0.35,
++                'Mid-term (5-10 years)': 0.6,
++                'Long-term (10-20 years)': 0.85
++            };
++
++            const size = 520;
++            const center = size / 2;
++            const maxRadius = size * 0.45;
++
++            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
++            svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
++            svg.setAttribute('width', '100%');
++            svg.setAttribute('height', '100%');
++
++            const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
++            background.setAttribute('x', 0);
++            background.setAttribute('y', 0);
++            background.setAttribute('width', size);
++            background.setAttribute('height', size);
++            background.setAttribute('fill', 'transparent');
++            svg.appendChild(background);
++
++            horizons.forEach(horizon => {
++                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
++                circle.setAttribute('cx', center);
++                circle.setAttribute('cy', center);
++                circle.setAttribute('r', maxRadius * horizonRadii[horizon]);
++                circle.setAttribute('fill', 'none');
++                circle.setAttribute('stroke', 'rgba(215,227,243,0.12)');
++                circle.setAttribute('stroke-dasharray', '4 6');
++                svg.appendChild(circle);
++            });
++
++            types.forEach((type, index) => {
++                const angle = (Math.PI * 2 * index) / types.length;
++                const x = center + Math.cos(angle) * maxRadius;
++                const y = center + Math.sin(angle) * maxRadius;
++                const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
++                axis.setAttribute('x1', center);
++                axis.setAttribute('y1', center);
++                axis.setAttribute('x2', x);
++                axis.setAttribute('y2', y);
++                axis.setAttribute('stroke', 'rgba(215,227,243,0.15)');
++                svg.appendChild(axis);
++
++                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
++                label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 22));
++                label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 22));
++                label.setAttribute('fill', '#c9d7ea');
++                label.setAttribute('font-size', '11');
++                label.setAttribute('text-anchor', 'middle');
++                label.textContent = type;
++                svg.appendChild(label);
++            });
++
++            items.forEach((item, index) => {
++                const typeIndex = types.indexOf(item.type) === -1 ? 0 : types.indexOf(item.type);
++                const angleOffset = (index + 1) / (items.length + 2);
++                const angle = (Math.PI * 2 * typeIndex) / types.length + angleOffset * 0.6 - 0.3;
++                const radiusScale = horizonRadii[item.time_horizon] || 0.5;
++                const jitter = (index % 5) * 0.04;
++                const radius = maxRadius * (radiusScale + jitter);
++                const x = center + Math.cos(angle) * radius;
++                const y = center + Math.sin(angle) * radius;
++                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
++                dot.setAttribute('cx', x);
++                dot.setAttribute('cy', y);
++                dot.setAttribute('r', item.kind === 'source' ? 4.5 : 6);
++                dot.setAttribute('fill', typeColors[item.type] || '#f2a900');
++                dot.setAttribute('opacity', 0.9);
++                dot.setAttribute('stroke', 'rgba(0,0,0,0.4)');
++                dot.setAttribute('stroke-width', 1);
++                dot.setAttribute('data-index', String(index));
++                dot.setAttribute('role', 'button');
++                dot.style.cursor = 'pointer';
++                const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
++                title.textContent = item.title || 'Phenomenon';
++                dot.appendChild(title);
++                dot.addEventListener('click', () => openScorecard(item));
++                svg.appendChild(dot);
++            });
++
++            container.appendChild(svg);
++
++            const typeGroup = document.createElement('div');
++            typeGroup.className = 'legend-group';
++            typeGroup.innerHTML = `<div class="legend-title">Signal Types</div>`;
++            types.forEach(type => {
++                if (type === 'Search Result' && !(data.sources && data.sources.length > 0)) {
++                    return;
++                }
++                const row = document.createElement('div');
++                row.className = 'legend-item';
++                row.innerHTML = `<span class="legend-swatch" style="background:${typeColors[type]}"></span>${type}`;
++                typeGroup.appendChild(row);
++            });
++            legend.appendChild(typeGroup);
++
++            const horizonGroup = document.createElement('div');
++            horizonGroup.className = 'legend-group';
++            horizonGroup.innerHTML = `<div class="legend-title">Time Horizons</div>`;
++            horizons.forEach(horizon => {
++                const row = document.createElement('div');
++                row.className = 'legend-item';
++                row.innerHTML = `<span class="legend-swatch" style="background:#5a7aa3"></span>${horizon}`;
++                horizonGroup.appendChild(row);
++            });
++            legend.appendChild(horizonGroup);
++        }
+     </script>
+ </body>
+ </html>
