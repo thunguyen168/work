@@ -67,9 +67,13 @@ def analyze_with_claude(topic: str, search_results: list) -> dict:
     for i, result in enumerate(search_results, 1):
         sources_text += f"\n{i}. {result['title']}\n   {result['snippet']}\n   Source: {result['link']}\n"
     
-    prompt = f"""You are a foresight analyst. Based on the search results below about "{topic}", identify exactly 10 key phenomena (trends, weak signals, or potential disruptions).
+    prompt = f"""You are a strategic foresight analyst. Based on the search results below about "{topic}", identify exactly 10 key phenomena (trends, weak signals, or potential disruptions).
 
-First, decide on 2-4 concise category labels that describe the landscape (e.g., "Technology", "Policy", "Market", "Society"). Use only these category labels for every phenomenon.
+Categorize each phenomenon into one of these four categories:
+- "Strategic" - Long-term direction, competitive positioning, market shifts
+- "Operational" - Day-to-day processes, technology, workforce, supply chain
+- "Financial" - Economic factors, costs, investments, market valuations
+- "Regulatory" - Laws, compliance, policy changes, governance
 
 IMPORTANT: You MUST include at least one phenomenon of each signal type:
 - At least 1 "Strengthening Trend" (a trend gaining momentum)
@@ -84,7 +88,7 @@ For each phenomenon, provide:
 1. **Title**: A clear, concise name
 2. **Type**: One of: "Strengthening Trend", "Weakening Trend", "Weak Signal", or "Wild Card"
 3. **Time Horizon**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)"
-4. **Category**: One of your 2-4 category labels
+4. **Category**: One of: "Strategic", "Operational", "Financial", or "Regulatory"
 5. **Summary**: 2-3 sentences explaining what it is and why it matters
 6. **Key Drivers**: 2-3 forces driving this phenomenon
 7. **Implications**: 1-2 potential impacts or opportunities
@@ -95,7 +99,7 @@ Format your response as a JSON array like this:
     "title": "Example Trend",
     "type": "Strengthening Trend",
     "time_horizon": "Near-term (0-5 years)",
-    "category": "Technology",
+    "category": "Strategic",
     "summary": "Description here...",
     "drivers": ["Driver 1", "Driver 2"],
     "implications": ["Implication 1", "Implication 2"]
