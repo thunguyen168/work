@@ -16,7 +16,7 @@ BRAVE_API_KEY = os.environ.get('BRAVE_API_KEY')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 
 
-def search_web(query: str, num_results: int = 5) -> list:
+def search_web(query: str, num_results: int = 10) -> list:
     """Search the web using Serper or Brave API."""
     results = []
     
@@ -159,7 +159,7 @@ def scan_topic():
         
         all_results = []
         for query in search_queries:
-            results = search_web(query, num_results=5)
+            results = search_web(query, num_results=10)
             all_results.extend(results)
         
         if not all_results:
