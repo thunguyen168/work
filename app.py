@@ -21,6 +21,7 @@ def search_web(query: str, num_results: int = 5) -> list:
     results = []
     
     if SERPER_API_KEY:
+        # Use Serper
         response = httpx.post(
             "https://google.serper.dev/search",
             headers={"X-API-KEY": SERPER_API_KEY},
@@ -37,6 +38,7 @@ def search_web(query: str, num_results: int = 5) -> list:
                 })
     
     elif BRAVE_API_KEY:
+        # Use Brave
         response = httpx.get(
             "https://api.search.brave.com/res/v1/web/search",
             headers={"X-Subscription-Token": BRAVE_API_KEY},
@@ -60,6 +62,7 @@ def analyze_with_claude(topic: str, search_results: list) -> dict:
     
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     
+    # Format search results for the prompt
     sources_text = ""
     for i, result in enumerate(search_results, 1):
         sources_text += f"\n{i}. {result['title']}\n   {result['snippet']}\n   Source: {result['link']}\n"
@@ -97,16 +100,20 @@ Return ONLY the JSON array, no other text."""
         messages=[{"role": "user", "content": prompt}]
     )
     
+    # Parse the response
     response_text = response.content[0].text.strip()
     
+    # Try to extract JSON from the response
     import json
     try:
+        # Remove markdown code blocks if present
         if response_text.startswith("```"):
             response_text = response_text.split("```")[1]
             if response_text.startswith("json"):
                 response_text = response_text[4:]
         phenomena = json.loads(response_text)
     except json.JSONDecodeError:
+        # If parsing fails, return a simple error structure
         phenomena = [{
             "title": "Analysis Complete",
             "type": "Note",
@@ -138,11 +145,13 @@ def scan_topic():
         if not topic:
             return jsonify({'error': 'Please enter a topic to scan'}), 400
         
+        # Check API keys
         if not ANTHROPIC_API_KEY:
             return jsonify({'error': 'Anthropic API key not configured'}), 500
         if not SERPER_API_KEY and not BRAVE_API_KEY:
-            return jsonify({'error': 'No search API key configured'}), 500
+            return jsonify({'error': 'No search API key configured (need SERPER_API_KEY or BRAVE_API_KEY)'}), 500
         
+        # Step 1: Search the web (just 2 quick searches)
         search_queries = [
             f"{topic} trends 2024 2025",
             f"{topic} future predictions emerging"
@@ -154,8 +163,9 @@ def scan_topic():
             all_results.extend(results)
         
         if not all_results:
-            return jsonify({'error': 'No search results found.'}), 400
+            return jsonify({'error': 'No search results found. Please try a different topic.'}), 400
         
+        # Remove duplicates based on link
         seen_links = set()
         unique_results = []
         for r in all_results:
@@ -163,7 +173,8 @@ def scan_topic():
                 seen_links.add(r['link'])
                 unique_results.append(r)
         
-        analysis = analyze_with_claude(topic, unique_results[:8])
+        # Step 2: Analyze with Claude (single API call)
+        analysis = analyze_with_claude(topic, unique_results[:8])  # Limit to 8 sources
         
         return jsonify({
             'success': True,
@@ -183,11 +194,13 @@ def scan_topic():
 
 @app.route('/health')
 def health():
+    """Health check."""
     return jsonify({'status': 'healthy'})
 
 
 @app.route('/debug')
 def debug():
+    """Debug endpoint."""
     return jsonify({
         'anthropic_key_set': bool(ANTHROPIC_API_KEY),
         'serper_key_set': bool(SERPER_API_KEY),
