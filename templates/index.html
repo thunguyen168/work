@@ -12,19 +12,19 @@
         }
 
         :root {
-            --lockton-navy: #003a70;
-            --lockton-blue: #005a9c;
-            --lockton-gold: #f2a900;
-            --lockton-slate: #0b2343;
-            --lockton-mist: #dce6f2;
-            --lockton-ice: #9bb7d6;
+            --lockton-black: #000000;
+            --lockton-white: #ffffff;
+            --lockton-jet: #363636;
+            --lockton-silver: #888888;
+            --lockton-blue: #00aeef;
+            --lockton-blue-dark: #0d245c;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, var(--lockton-navy) 0%, var(--lockton-slate) 50%, #07172b 100%);
+            background: linear-gradient(135deg, var(--lockton-black) 0%, var(--lockton-jet) 55%, #141414 100%);
             min-height: 100vh;
-            color: #f4f7fb;
+            color: var(--lockton-white);
         }
 
         .container {
@@ -40,18 +40,18 @@
 
         h1 {
             font-size: 2.5rem;
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
             margin-bottom: 10px;
-            text-shadow: 0 0 18px rgba(242, 169, 0, 0.35);
+            text-shadow: 0 0 18px rgba(0, 174, 239, 0.35);
         }
 
         .subtitle {
-            color: var(--lockton-ice);
+            color: var(--lockton-silver);
             font-size: 1.1rem;
         }
 
         .search-box {
-            background: rgba(8, 24, 48, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 16px;
             padding: 30px;
             margin-bottom: 30px;
@@ -69,29 +69,29 @@
             min-width: 250px;
             padding: 15px 20px;
             font-size: 1rem;
-            border: 2px solid rgba(242, 169, 0, 0.35);
+            border: 2px solid rgba(0, 174, 239, 0.4);
             border-radius: 10px;
-            background: rgba(7, 23, 43, 0.7);
+            background: rgba(0, 0, 0, 0.7);
             color: #fff;
             transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: var(--lockton-gold);
-            box-shadow: 0 0 20px rgba(242, 169, 0, 0.25);
+            border-color: var(--lockton-blue);
+            box-shadow: 0 0 20px rgba(0, 174, 239, 0.25);
         }
 
         .search-input::placeholder {
-            color: #8aa2bf;
+            color: var(--lockton-silver);
         }
 
         .scan-button {
             padding: 15px 40px;
             font-size: 1rem;
             font-weight: 600;
-            color: #07172b;
-            background: linear-gradient(135deg, var(--lockton-gold), #ffd066);
+            color: var(--lockton-black);
+            background: linear-gradient(135deg, var(--lockton-blue), #7bd2f7);
             border: none;
             border-radius: 10px;
             cursor: pointer;
@@ -100,7 +100,7 @@
 
         .scan-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(242, 169, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 174, 239, 0.3);
         }
 
         .scan-button:disabled {
@@ -112,17 +112,17 @@
         .examples {
             margin-top: 20px;
             font-size: 0.9rem;
-            color: #8aa2bf;
+            color: var(--lockton-silver);
         }
 
         .examples span {
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
             cursor: pointer;
             transition: color 0.2s;
         }
 
         .examples span:hover {
-            color: #ffd166;
+            color: #7bd2f7;
         }
 
         .loading {
@@ -138,8 +138,8 @@
         .spinner {
             width: 50px;
             height: 50px;
-            border: 4px solid rgba(242, 169, 0, 0.2);
-            border-top-color: var(--lockton-gold);
+            border: 4px solid rgba(0, 174, 239, 0.2);
+            border-top-color: var(--lockton-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -150,7 +150,7 @@
         }
 
         .loading-text {
-            color: #a9bdd6;
+            color: var(--lockton-silver);
             font-size: 1.1rem;
         }
 
@@ -173,11 +173,11 @@
 
         .results-title {
             font-size: 1.5rem;
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
         }
 
         .results-count {
-            background: rgba(0, 90, 156, 0.35);
+            background: rgba(0, 174, 239, 0.2);
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.9rem;
@@ -185,10 +185,24 @@
 
         .radar-section {
             margin: 30px 0 40px;
-            background: rgba(5, 17, 33, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             border-radius: 16px;
             padding: 25px;
             border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .radar-summary {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(54, 54, 54, 0.3);
+            color: var(--lockton-silver);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .radar-summary strong {
+            color: var(--lockton-white);
         }
 
         .radar-header {
@@ -202,12 +216,12 @@
 
         .radar-title {
             font-size: 1.2rem;
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
         }
 
         .radar-subtitle {
             font-size: 0.85rem;
-            color: #9ab0ca;
+            color: var(--lockton-silver);
         }
 
         .radar-wrapper {
@@ -227,7 +241,7 @@
         .radar-legend {
             display: grid;
             gap: 12px;
-            color: #9cb2cb;
+            color: var(--lockton-silver);
             font-size: 0.85rem;
         }
 
@@ -238,7 +252,7 @@
 
         .legend-title {
             font-weight: 600;
-            color: #d7e3f3;
+            color: var(--lockton-white);
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 1px;
@@ -264,7 +278,7 @@
         }
 
         .phenomenon-card {
-            background: rgba(7, 23, 43, 0.65);
+            background: rgba(0, 0, 0, 0.65);
             border-radius: 12px;
             padding: 25px;
             margin-bottom: 20px;
@@ -273,7 +287,7 @@
         }
 
         .phenomenon-card:hover {
-            border-color: rgba(242, 169, 0, 0.35);
+            border-color: rgba(0, 174, 239, 0.4);
             transform: translateY(-2px);
         }
 
@@ -294,22 +308,22 @@
             padding: 4px 12px;
             border-radius: 15px;
             font-size: 0.8rem;
-            background: rgba(0, 90, 156, 0.25);
-            color: #b8d0ea;
+            background: rgba(54, 54, 54, 0.6);
+            color: var(--lockton-white);
         }
 
         .tag.type {
-            background: rgba(242, 169, 0, 0.2);
-            color: #ffd066;
+            background: rgba(0, 174, 239, 0.2);
+            color: var(--lockton-white);
         }
 
         .tag.horizon {
-            background: rgba(0, 58, 112, 0.4);
-            color: #9bb7d6;
+            background: rgba(136, 136, 136, 0.3);
+            color: var(--lockton-white);
         }
 
         .phenomenon-summary {
-            color: #c9d5e5;
+            color: #d6d6d6;
             line-height: 1.6;
             margin-bottom: 15px;
         }
@@ -320,7 +334,7 @@
 
         .phenomenon-section-title {
             font-size: 0.85rem;
-            color: #9bb0c8;
+            color: var(--lockton-silver);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
@@ -332,7 +346,7 @@
         }
 
         .phenomenon-list li {
-            color: #c5d3e6;
+            color: #d6d6d6;
             padding: 4px 0;
             padding-left: 15px;
             position: relative;
@@ -342,7 +356,7 @@
             content: "→";
             position: absolute;
             left: 0;
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
         }
 
         .sources-section {
@@ -353,7 +367,7 @@
 
         .sources-title {
             font-size: 1.2rem;
-            color: #a9bfd7;
+            color: var(--lockton-silver);
             margin-bottom: 15px;
         }
 
@@ -363,7 +377,7 @@
         }
 
         .source-item a {
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
             text-decoration: none;
         }
 
@@ -373,17 +387,17 @@
 
         .source-snippet {
             font-size: 0.9rem;
-            color: #9fb1c8;
+            color: var(--lockton-silver);
             margin-top: 5px;
         }
 
         .error-message {
             display: none;
-            background: rgba(242, 120, 120, 0.12);
-            border: 1px solid rgba(242, 120, 120, 0.4);
+            background: rgba(255, 33, 71, 0.12);
+            border: 1px solid rgba(255, 33, 71, 0.4);
             border-radius: 10px;
             padding: 20px;
-            color: #ffb3b3;
+            color: #ffb3c1;
             margin-top: 20px;
         }
 
@@ -396,7 +410,7 @@
             margin-top: 60px;
             padding-top: 30px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #90a7c4;
+            color: var(--lockton-silver);
             font-size: 0.9rem;
         }
 
@@ -405,12 +419,12 @@
             right: 30px;
             top: 120px;
             width: min(360px, 90vw);
-            background: rgba(7, 23, 43, 0.92);
-            border: 1px solid rgba(242, 169, 0, 0.35);
+            background: rgba(0, 0, 0, 0.92);
+            border: 1px solid rgba(0, 174, 239, 0.4);
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            color: #f4f7fb;
+            color: var(--lockton-white);
             display: none;
             z-index: 10;
         }
@@ -428,13 +442,13 @@
 
         .scorecard-title {
             font-size: 1.1rem;
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
         }
 
         .scorecard-close {
             background: none;
             border: none;
-            color: #d9e5f4;
+            color: var(--lockton-white);
             font-size: 1.1rem;
             cursor: pointer;
         }
@@ -448,13 +462,13 @@
 
         .scorecard-section {
             margin-top: 12px;
-            color: #c9d5e5;
+            color: #d6d6d6;
             font-size: 0.9rem;
             line-height: 1.5;
         }
 
         .scorecard-link {
-            color: var(--lockton-gold);
+            color: var(--lockton-blue);
             text-decoration: none;
             font-weight: 600;
         }
@@ -519,22 +533,23 @@
                     <button class="scorecard-close" id="scorecardClose" aria-label="Close scorecard">✕</button>
                 </div>
                 <div class="scorecard-meta" id="scorecardMeta"></div>
-                <div class="scorecard-section" id="scorecardSummary"></div>
+                <div class="scorecard-section" id="scorecardOverview"></div>
                 <div class="scorecard-section" id="scorecardDrivers"></div>
                 <div class="scorecard-section" id="scorecardImplications"></div>
-                <div class="scorecard-section" id="scorecardSource"></div>
+                <div class="scorecard-section" id="scorecardSources"></div>
             </div>
             <div class="radar-section">
                 <div class="radar-header">
                     <div>
                         <h3 class="radar-title">Strategic Radar Map</h3>
-                        <p class="radar-subtitle">Phenomena and search results plotted by type (angle) and time horizon (distance).</p>
+                        <p class="radar-subtitle">Phenomena plotted by category (angle) and time horizon (distance).</p>
                     </div>
                 </div>
                 <div class="radar-wrapper">
                     <div class="radar-canvas" id="radarCanvas"></div>
                     <div class="radar-legend" id="radarLegend"></div>
                 </div>
+                <div class="radar-summary" id="radarSummary"></div>
             </div>
             <div id="phenomenaList"></div>
 
@@ -595,6 +610,7 @@
             document.getElementById('resultsTitle').textContent = `Results for "${topic}"`;
             document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found • ${sourcesCount} sources`;
             document.getElementById('scorecard').classList.remove('active');
+            window.latestScanData = data;
             renderRadarMap(data);
 
             const list = document.getElementById('phenomenaList');
@@ -661,37 +677,29 @@
             document.getElementById('results').classList.add('active');
         }
 
-        function buildRadarItems(data) {
-            const phenomena = data.phenomena || [];
-            const sources = data.sources || [];
-            const items = phenomena.map((item, index) => ({
-                ...item,
-                kind: 'phenomenon',
-                index
-            }));
-
-            sources.forEach((source, index) => {
-                items.push({
-                    title: source.title,
-                    summary: source.snippet,
-                    type: 'Search Result',
-                    time_horizon: 'Near-term (0-5 years)',
-                    source_link: source.link,
-                    kind: 'source',
-                    index
-                });
+        function getCategories(phenomena) {
+            const categories = [];
+            phenomena.forEach(item => {
+                const category = item.category || 'Uncategorized';
+                if (!categories.includes(category)) {
+                    categories.push(category);
+                }
             });
 
-            return items;
+            if (categories.length < 2) {
+                categories.push('Additional');
+            }
+
+            return categories.slice(0, 4);
         }
 
         function openScorecard(item) {
             const card = document.getElementById('scorecard');
             const meta = document.getElementById('scorecardMeta');
-            const summary = document.getElementById('scorecardSummary');
+            const overview = document.getElementById('scorecardOverview');
             const drivers = document.getElementById('scorecardDrivers');
             const implications = document.getElementById('scorecardImplications');
-            const source = document.getElementById('scorecardSource');
+            const sources = document.getElementById('scorecardSources');
 
             document.getElementById('scorecardTitle').textContent = item.title || 'Signal details';
             meta.innerHTML = '';
@@ -702,8 +710,11 @@
             if (item.time_horizon) {
                 meta.innerHTML += `<span class="tag horizon">${item.time_horizon}</span>`;
             }
+            if (item.category) {
+                meta.innerHTML += `<span class="tag">${item.category}</span>`;
+            }
 
-            summary.textContent = item.summary || 'No summary available yet.';
+            overview.innerHTML = `<strong>Overview:</strong> ${item.summary || 'No summary available yet.'}`;
 
             if (item.drivers && item.drivers.length > 0) {
                 drivers.innerHTML = `<strong>Key drivers:</strong> ${item.drivers.join(', ')}`;
@@ -712,15 +723,18 @@
             }
 
             if (item.implications && item.implications.length > 0) {
-                implications.innerHTML = `<strong>Implications:</strong> ${item.implications.join(', ')}`;
+                implications.innerHTML = `<strong>Impacts:</strong> ${item.implications.join(', ')}`;
             } else {
                 implications.innerHTML = '';
             }
 
-            if (item.source_link) {
-                source.innerHTML = `<a class="scorecard-link" href="${item.source_link}" target="_blank">Open source →</a>`;
+            const scanSources = (window.latestScanData && window.latestScanData.sources) ? window.latestScanData.sources : [];
+            if (scanSources.length > 0) {
+                sources.innerHTML = `<strong>Sources:</strong> ${scanSources.map(source => (
+                    `<a class="scorecard-link" href="${source.link}" target="_blank">${source.title}</a>`
+                )).join(' • ')}`;
             } else {
-                source.innerHTML = '';
+                sources.innerHTML = '';
             }
 
             card.classList.add('active');
@@ -733,29 +747,35 @@
         function renderRadarMap(data) {
             const container = document.getElementById('radarCanvas');
             const legend = document.getElementById('radarLegend');
+            const summary = document.getElementById('radarSummary');
             container.innerHTML = '';
             legend.innerHTML = '';
+            summary.innerHTML = '';
 
-            const items = buildRadarItems(data);
+            const items = (data.phenomena || []).map((item, index) => ({
+                ...item,
+                kind: 'phenomenon',
+                index
+            }));
 
             if (!items || items.length === 0) {
-                container.innerHTML = '<p style="color:#9fb1c8;text-align:center;">No signals to plot yet.</p>';
+                container.innerHTML = '<p style="color:#888888;text-align:center;">No signals to plot yet.</p>';
+                summary.textContent = 'No phenomena or sources to summarize yet.';
                 return;
             }
 
+            const categories = getCategories(items);
             const types = [
                 'Strengthening Trend',
                 'Weakening Trend',
                 'Weak Signal',
-                'Wild Card',
-                'Search Result'
+                'Wild Card'
             ];
             const typeColors = {
-                'Strengthening Trend': '#7cd992',
-                'Weakening Trend': '#ff8b8b',
-                'Weak Signal': '#ffd166',
-                'Wild Card': '#7db5ff',
-                'Search Result': '#f2a900'
+                'Strengthening Trend': '#7eb142',
+                'Weakening Trend': '#ff2147',
+                'Weak Signal': '#ff732b',
+                'Wild Card': '#822ebf'
             };
             const horizons = [
                 'Near-term (0-5 years)',
@@ -791,13 +811,13 @@
                 circle.setAttribute('cy', center);
                 circle.setAttribute('r', maxRadius * horizonRadii[horizon]);
                 circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', 'rgba(215,227,243,0.12)');
+                circle.setAttribute('stroke', 'rgba(255,255,255,0.12)');
                 circle.setAttribute('stroke-dasharray', '4 6');
                 svg.appendChild(circle);
             });
 
-            types.forEach((type, index) => {
-                const angle = (Math.PI * 2 * index) / types.length;
+            categories.forEach((category, index) => {
+                const angle = (Math.PI * 2 * index) / categories.length;
                 const x = center + Math.cos(angle) * maxRadius;
                 const y = center + Math.sin(angle) * maxRadius;
                 const axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -805,23 +825,24 @@
                 axis.setAttribute('y1', center);
                 axis.setAttribute('x2', x);
                 axis.setAttribute('y2', y);
-                axis.setAttribute('stroke', 'rgba(215,227,243,0.15)');
+                axis.setAttribute('stroke', 'rgba(255,255,255,0.18)');
                 svg.appendChild(axis);
 
                 const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 label.setAttribute('x', center + Math.cos(angle) * (maxRadius + 22));
                 label.setAttribute('y', center + Math.sin(angle) * (maxRadius + 22));
-                label.setAttribute('fill', '#c9d7ea');
+                label.setAttribute('fill', '#b8b8b8');
                 label.setAttribute('font-size', '11');
                 label.setAttribute('text-anchor', 'middle');
-                label.textContent = type;
+                label.textContent = category;
                 svg.appendChild(label);
             });
 
             items.forEach((item, index) => {
-                const typeIndex = types.indexOf(item.type) === -1 ? 0 : types.indexOf(item.type);
+                const category = categories.includes(item.category) ? item.category : categories[0];
+                const categoryIndex = categories.indexOf(category);
                 const angleOffset = (index + 1) / (items.length + 2);
-                const angle = (Math.PI * 2 * typeIndex) / types.length + angleOffset * 0.6 - 0.3;
+                const angle = (Math.PI * 2 * categoryIndex) / categories.length + angleOffset * 0.6 - 0.3;
                 const radiusScale = horizonRadii[item.time_horizon] || 0.5;
                 const jitter = (index % 5) * 0.04;
                 const radius = maxRadius * (radiusScale + jitter);
@@ -830,8 +851,8 @@
                 const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 dot.setAttribute('cx', x);
                 dot.setAttribute('cy', y);
-                dot.setAttribute('r', item.kind === 'source' ? 4.5 : 6);
-                dot.setAttribute('fill', typeColors[item.type] || '#f2a900');
+                dot.setAttribute('r', 6);
+                dot.setAttribute('fill', typeColors[item.type] || '#00aeef');
                 dot.setAttribute('opacity', 0.9);
                 dot.setAttribute('stroke', 'rgba(0,0,0,0.4)');
                 dot.setAttribute('stroke-width', 1);
@@ -850,9 +871,6 @@
             typeGroup.className = 'legend-group';
             typeGroup.innerHTML = `<div class="legend-title">Signal Types</div>`;
             types.forEach(type => {
-                if (type === 'Search Result' && !(data.sources && data.sources.length > 0)) {
-                    return;
-                }
                 const row = document.createElement('div');
                 row.className = 'legend-item';
                 row.innerHTML = `<span class="legend-swatch" style="background:${typeColors[type]}"></span>${type}`;
@@ -866,10 +884,23 @@
             horizons.forEach(horizon => {
                 const row = document.createElement('div');
                 row.className = 'legend-item';
-                row.innerHTML = `<span class="legend-swatch" style="background:#5a7aa3"></span>${horizon}`;
+                row.innerHTML = `<span class="legend-swatch" style="background:#888888"></span>${horizon}`;
                 horizonGroup.appendChild(row);
             });
             legend.appendChild(horizonGroup);
+
+            const sourcesCount = data.sources ? data.sources.length : 0;
+            const categoriesText = categories.join(', ');
+            const horizonCounts = horizons.map(horizon => {
+                const count = items.filter(item => item.time_horizon === horizon).length;
+                const label = horizon.split(' ')[0].toLowerCase();
+                return `${count} ${label}-term`;
+            }).join(', ');
+            const sampleSources = (data.sources || []).slice(0, 3).map(source => source.title).filter(Boolean).join('; ');
+
+            summary.innerHTML = `
+                The scan surfaced <strong>${items.length} phenomena</strong> across <strong>${categories.length} categories</strong> (${categoriesText}), with ${horizonCounts} signals by time horizon. We drew on <strong>${sourcesCount} sources</strong>${sampleSources ? `, including ${sampleSources}` : ''}.
+            `;
         }
     </script>
 </body>
