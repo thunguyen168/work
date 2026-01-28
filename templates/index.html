@@ -1825,8 +1825,11 @@
 
         function downloadReport() {
             const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
-            const radarSvg = document.getElementById('radarCanvas').innerHTML;
             const sources = window.latestScanData.sources || [];
+
+            // Re-render radar with edited phenomena so the SVG reflects edits
+            renderRadarMap({ phenomena: editablePhenomena, sources: sources });
+            const radarSvg = document.getElementById('radarCanvas').innerHTML;
 
             // Generate the HTML report
             const reportHtml = generateReportHtml(topic, editablePhenomena, radarSvg, sources);
