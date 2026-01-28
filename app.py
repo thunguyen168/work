@@ -1,3 +1,4 @@
+ """
  AI Foresight Scanner - Lightweight Web Version
  A simple, fast version that works within web hosting limits.
  """
@@ -15,7 +16,6 @@
  ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
  
  
--def search_web(query: str, num_results: int = 5) -> list:
 +def search_web(query: str, num_results: int = 10) -> list:
      """Search the web using Serper or Brave API."""
      results = []
@@ -67,7 +67,6 @@
      for i, result in enumerate(search_results, 1):
          sources_text += f"\n{i}. {result['title']}\n   {result['snippet']}\n   Source: {result['link']}\n"
      
--    prompt = f"""You are a foresight analyst. Based on the search results below about "{topic}", identify 3-5 key phenomena (trends, weak signals, or potential disruptions).
 +    prompt = f"""You are a foresight analyst. Based on the search results below about "{topic}", identify exactly 10 key phenomena (trends, weak signals, or potential disruptions).
 +
 +First, decide on 2-4 concise category labels that describe the landscape (e.g., "Technology", "Policy", "Market", "Society"). Use only these category labels for every phenomenon.
@@ -79,9 +78,6 @@
  1. **Title**: A clear, concise name
  2. **Type**: One of: "Strengthening Trend", "Weakening Trend", "Weak Signal", or "Wild Card"
  3. **Time Horizon**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)"
--4. **Summary**: 2-3 sentences explaining what it is and why it matters
--5. **Key Drivers**: 2-3 forces driving this phenomenon
--6. **Implications**: 1-2 potential impacts or opportunities
 +4. **Category**: One of your 2-4 category labels
 +5. **Summary**: 2-3 sentences explaining what it is and why it matters
 +6. **Key Drivers**: 2-3 forces driving this phenomenon
@@ -147,7 +143,6 @@
          all_results = []
 +        results_per_query = 10
          for query in search_queries:
--            results = search_web(query, num_results=5)
 +            results = search_web(query, num_results=results_per_query)
              all_results.extend(results)
          
@@ -163,7 +158,6 @@
                  unique_results.append(r)
          
          # Step 2: Analyze with Claude (single API call)
--        analysis = analyze_with_claude(topic, unique_results[:8])  # Limit to 8 sources
 +        analysis = analyze_with_claude(topic, unique_results[:10])  # Limit to 10 sources
          
          return jsonify({
