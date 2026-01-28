@@ -855,9 +855,9 @@
                 'Long-term (10-20 years)'
             ];
             const horizonRadii = {
-                'Near-term (0-5 years)': 0.35,
-                'Mid-term (5-10 years)': 0.6,
-                'Long-term (10-20 years)': 0.85
+                'Near-term (0-5 years)': 0.20,
+                'Mid-term (5-10 years)': 0.40,
+                'Long-term (10-20 years)': 0.72
             };
 
             const size = 650;
@@ -913,12 +913,13 @@
             const currentYear = new Date().getFullYear();
 
             // Year rings at 5-year intervals (0, 5, 10, 15, 20 years)
+            // Evenly spaced: from 0.08 (center) to 0.92 (outer), gap of 0.21 per 5 years
             const yearIntervals = [
                 { years: 0, radius: 0.08, label: currentYear },
-                { years: 5, radius: 0.35, label: currentYear + 5 },
-                { years: 10, radius: 0.6, label: currentYear + 10 },
-                { years: 15, radius: 0.725, label: currentYear + 15 },
-                { years: 20, radius: 0.85, label: currentYear + 20 }
+                { years: 5, radius: 0.29, label: currentYear + 5 },
+                { years: 10, radius: 0.50, label: currentYear + 10 },
+                { years: 15, radius: 0.71, label: currentYear + 15 },
+                { years: 20, radius: 0.92, label: currentYear + 20 }
             ];
 
             // Time arrow pointing outward (bottom right diagonal)
@@ -1064,10 +1065,11 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 const normalizedRadius = distance / maxRadius;
 
-                // Determine time horizon based on radius thresholds
-                if (normalizedRadius <= 0.475) {
+                // Determine time horizon based on radius thresholds (matching evenly-spaced rings)
+                // 5-year ring at 0.29, 10-year ring at 0.50
+                if (normalizedRadius <= 0.29) {
                     return 'Near-term (0-5 years)';
-                } else if (normalizedRadius <= 0.725) {
+                } else if (normalizedRadius <= 0.50) {
                     return 'Mid-term (5-10 years)';
                 } else {
                     return 'Long-term (10-20 years)';
@@ -1185,6 +1187,20 @@
                     // Update the stored item
                     dot._phenomenonItem.category = newCategory;
                     dot._phenomenonItem.time_horizon = newTimeHorizon;
+
+                    // Update the phenomenon card in the list below the radar
+                    const phenomenonIndex = dot._phenomenonItem.index;
+                    const phenomenaList = document.getElementById('phenomenaList');
+                    if (phenomenaList && phenomenaList.children[phenomenonIndex]) {
+                        const card = phenomenaList.children[phenomenonIndex];
+                        const tagsDiv = card.querySelector('.phenomenon-tags');
+                        if (tagsDiv) {
+                            tagsDiv.innerHTML = `
+                                ${dot._phenomenonItem.type ? `<span class="tag type">${dot._phenomenonItem.type}</span>` : ''}
+                                ${newTimeHorizon ? `<span class="tag horizon">${newTimeHorizon}</span>` : ''}
+                            `;
+                        }
+                    }
 
                     // Select the dot and show updated scorecard
                     allDots.forEach(d => d.classList.remove('selected'));
