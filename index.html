@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Foresight Scanner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #00d9ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .search-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: #666;
+        }
+        
+        .scan-button {
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #00d9ff, #00ff88);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .scan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+        
+        .scan-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .examples {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .examples span {
+            color: #00d9ff;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .examples span:hover {
+            color: #00ff88;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 217, 255, 0.2);
+            border-top-color: #00d9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #888;
+            font-size: 1.1rem;
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.active {
+            display: block;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            color: #00d9ff;
+        }
+        
+        .results-count {
+            background: rgba(0, 217, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .phenomenon-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .phenomenon-card:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .phenomenon-title {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .phenomenon-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .tag {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: rgba(0, 217, 255, 0.15);
+            color: #00d9ff;
+        }
+        
+        .tag.type {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+        }
+        
+        .tag.horizon {
+            background: rgba(255, 170, 0, 0.15);
+            color: #ffaa00;
+        }
+        
+        .phenomenon-summary {
+            color: #bbb;
+            line-height: 1.6;
+        }
+        
+        .error-message {
+            display: none;
+            background: rgba(255, 80, 80, 0.1);
+            border: 1px solid rgba(255, 80, 80, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ff8080;
+            margin-top: 20px;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔮 AI Foresight Scanner</h1>
+            <p class="subtitle">Discover trends, weak signals, and future disruptions</p>
+        </header>
+        
+        <div class="search-box">
+            <form class="search-form" id="scanForm">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="topicInput"
+                    placeholder="Enter a topic to scan (e.g., artificial intelligence in healthcare)"
+                    required
+                >
+                <button type="submit" class="scan-button" id="scanButton">
+                    Scan Future
+                </button>
+            </form>
+            <div class="examples">
+                Try: 
+                <span onclick="setTopic('artificial intelligence in healthcare')">AI in healthcare</span> • 
+                <span onclick="setTopic('quantum computing')">quantum computing</span> • 
+                <span onclick="setTopic('future of work')">future of work</span> • 
+                <span onclick="setTopic('climate adaptation technologies')">climate tech</span>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p class="loading-text">Scanning the future... This may take a minute.</p>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        
+        <div class="results" id="results">
+            <div class="results-header">
+                <h2 class="results-title" id="resultsTitle">Results</h2>
+                <span class="results-count" id="resultsCount">0 phenomena found</span>
+            </div>
+            <div id="phenomenaList"></div>
+        </div>
+        
+        <footer>
+            <p>Powered by Claude AI • Built with AI Foresight Scanner</p>
+        </footer>
+    </div>
+    
+    <script>
+        function setTopic(topic) {
+            document.getElementById('topicInput').value = topic;
+        }
+        
+        document.getElementById('scanForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const topic = document.getElementById('topicInput').value.trim();
+            if (!topic) return;
+            
+            // Show loading, hide results and errors
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('errorMessage').classList.remove('active');
+            document.getElementById('scanButton').disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('topic', topic);
+                
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Display results
+                displayResults(topic, data);
+                
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'Error: ' + error.message;
+                document.getElementById('errorMessage').classList.add('active');
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('scanButton').disabled = false;
+            }
+        });
+        
+        function displayResults(topic, data) {
+            document.getElementById('resultsTitle').textContent = `Results for "${topic}"`;
+            document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found`;
+            
+            const list = document.getElementById('phenomenaList');
+            list.innerHTML = '';
+            
+            if (data.phenomena && data.phenomena.length > 0) {
+                data.phenomena.forEach(phenomenon => {
+                    const card = document.createElement('div');
+                    card.className = 'phenomenon-card';
+                    
+                    // Handle different data structures
+                    const title = phenomenon.title || phenomenon.name || 'Untitled';
+                    const summary = phenomenon.summary || phenomenon.description || '';
+                    const type = phenomenon.type || phenomenon.classification?.type || '';
+                    const horizon = phenomenon.time_horizon || phenomenon.classification?.time_horizon || '';
+                    const tags = phenomenon.tags || [];
+                    
+                    card.innerHTML = `
+                        <h3 class="phenomenon-title">${title}</h3>
+                        <div class="phenomenon-tags">
+                            ${type ? `<span class="tag type">${type}</span>` : ''}
+                            ${horizon ? `<span class="tag horizon">${horizon}</span>` : ''}
+                            ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <p class="phenomenon-summary">${summary}</p>
+                    `;
+                    
+                    list.appendChild(card);
+                });
+            } else {
+                list.innerHTML = '<p style="color: #888; text-align: center;">No phenomena found for this topic.</p>';
+            }
+            
+            document.getElementById('results').classList.add('active');
+        }
+    </script>
+</body>
+</html>
