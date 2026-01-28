@@ -921,45 +921,6 @@
                 { years: 20, radius: 0.85, label: currentYear + 20 }
             ];
 
-            // Draw year rings
-            yearIntervals.forEach((interval, index) => {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', center);
-                circle.setAttribute('cy', center);
-                circle.setAttribute('r', maxRadius * interval.radius);
-                circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', index === 0 ? 'rgba(0, 174, 239, 0.8)' : 'rgba(0, 174, 239, 0.5)');
-                circle.setAttribute('stroke-width', index === 0 ? '3' : '2');
-                circle.setAttribute('stroke-dasharray', index === 0 ? 'none' : '8 6');
-                circle.classList.add('radar-ring');
-                circle.style.animationDelay = `${index * 0.5}s`;
-                svg.appendChild(circle);
-
-                // Add year label on the right side of each ring (except center)
-                if (index > 0) {
-                    const yearLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    yearLabel.setAttribute('x', center + maxRadius * interval.radius + 8);
-                    yearLabel.setAttribute('y', center + 4);
-                    yearLabel.setAttribute('fill', 'rgba(0, 174, 239, 0.7)');
-                    yearLabel.setAttribute('font-size', '11');
-                    yearLabel.setAttribute('font-weight', '500');
-                    yearLabel.setAttribute('text-anchor', 'start');
-                    yearLabel.textContent = interval.label;
-                    svg.appendChild(yearLabel);
-                }
-            });
-
-            // Center "NOW" label
-            const nowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            nowLabel.setAttribute('x', center);
-            nowLabel.setAttribute('y', center + 4);
-            nowLabel.setAttribute('fill', '#00aeef');
-            nowLabel.setAttribute('font-size', '12');
-            nowLabel.setAttribute('font-weight', '700');
-            nowLabel.setAttribute('text-anchor', 'middle');
-            nowLabel.textContent = 'NOW';
-            svg.appendChild(nowLabel);
-
             // Time arrow pointing outward (bottom right diagonal)
             const arrowAngle = Math.PI / 4; // 45 degrees (bottom-right)
             const arrowStartRadius = maxRadius * 0.15;
@@ -995,19 +956,47 @@
             arrowHead.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
             svg.appendChild(arrowHead);
 
-            // "FUTURE" label at arrow tip
-            const futureLabelX = center + Math.cos(arrowAngle) * (arrowEndRadius + 20);
-            const futureLabelY = center + Math.sin(arrowAngle) * (arrowEndRadius + 20);
-            const futureLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            futureLabel.setAttribute('x', futureLabelX);
-            futureLabel.setAttribute('y', futureLabelY);
-            futureLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
-            futureLabel.setAttribute('font-size', '11');
-            futureLabel.setAttribute('font-weight', '600');
-            futureLabel.setAttribute('text-anchor', 'middle');
-            futureLabel.setAttribute('transform', `rotate(45, ${futureLabelX}, ${futureLabelY})`);
-            futureLabel.textContent = 'FUTURE →';
-            svg.appendChild(futureLabel);
+            // Draw year rings
+            yearIntervals.forEach((interval, index) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', center);
+                circle.setAttribute('cy', center);
+                circle.setAttribute('r', maxRadius * interval.radius);
+                circle.setAttribute('fill', 'none');
+                circle.setAttribute('stroke', index === 0 ? 'rgba(0, 174, 239, 0.8)' : 'rgba(0, 174, 239, 0.5)');
+                circle.setAttribute('stroke-width', index === 0 ? '3' : '2');
+                circle.setAttribute('stroke-dasharray', index === 0 ? 'none' : '8 6');
+                circle.classList.add('radar-ring');
+                circle.style.animationDelay = `${index * 0.5}s`;
+                svg.appendChild(circle);
+
+                // Add year label along the arrow line (except center which gets special treatment)
+                if (index > 0) {
+                    const labelRadius = maxRadius * interval.radius;
+                    const labelX = center + Math.cos(arrowAngle) * labelRadius + 12;
+                    const labelY = center + Math.sin(arrowAngle) * labelRadius - 8;
+                    const yearLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    yearLabel.setAttribute('x', labelX);
+                    yearLabel.setAttribute('y', labelY);
+                    yearLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.7)');
+                    yearLabel.setAttribute('font-size', '11');
+                    yearLabel.setAttribute('font-weight', '500');
+                    yearLabel.setAttribute('text-anchor', 'start');
+                    yearLabel.textContent = interval.label;
+                    svg.appendChild(yearLabel);
+                }
+            });
+
+            // Center current year label
+            const nowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            nowLabel.setAttribute('x', center);
+            nowLabel.setAttribute('y', center + 4);
+            nowLabel.setAttribute('fill', '#00aeef');
+            nowLabel.setAttribute('font-size', '12');
+            nowLabel.setAttribute('font-weight', '700');
+            nowLabel.setAttribute('text-anchor', 'middle');
+            nowLabel.textContent = currentYear;
+            svg.appendChild(nowLabel);
 
             categories.forEach((category, index) => {
                 const angle = (Math.PI * 2 * index) / categories.length - Math.PI / 2;
@@ -1053,6 +1042,36 @@
                     x: (evt.clientX - rect.left) * scaleX,
                     y: (evt.clientY - rect.top) * scaleY
                 };
+            }
+
+            // Calculate category from position (based on angle/quadrant)
+            function getCategoryFromPosition(x, y) {
+                const dx = x - center;
+                const dy = y - center;
+                let angle = Math.atan2(dy, dx);
+                // Adjust angle to match category layout (starts at top, -PI/2)
+                angle = angle + Math.PI / 2;
+                if (angle < 0) angle += Math.PI * 2;
+                // Each category spans PI/2 radians (90 degrees)
+                const categoryIndex = Math.floor((angle / (Math.PI * 2)) * categories.length) % categories.length;
+                return categories[categoryIndex];
+            }
+
+            // Calculate time horizon from position (based on distance from center)
+            function getTimeHorizonFromPosition(x, y) {
+                const dx = x - center;
+                const dy = y - center;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const normalizedRadius = distance / maxRadius;
+
+                // Determine time horizon based on radius thresholds
+                if (normalizedRadius <= 0.475) {
+                    return 'Near-term (0-5 years)';
+                } else if (normalizedRadius <= 0.725) {
+                    return 'Mid-term (5-10 years)';
+                } else {
+                    return 'Long-term (10-20 years)';
+                }
             }
 
             // Constrain position within radar bounds
@@ -1156,7 +1175,22 @@
                 const dot = draggedDot;
                 dot.style.cursor = 'grab';
 
-                if (!isDragging) {
+                if (isDragging) {
+                    // Update item's category and time horizon based on new position
+                    const newX = parseFloat(dot.getAttribute('cx'));
+                    const newY = parseFloat(dot.getAttribute('cy'));
+                    const newCategory = getCategoryFromPosition(newX, newY);
+                    const newTimeHorizon = getTimeHorizonFromPosition(newX, newY);
+
+                    // Update the stored item
+                    dot._phenomenonItem.category = newCategory;
+                    dot._phenomenonItem.time_horizon = newTimeHorizon;
+
+                    // Select the dot and show updated scorecard
+                    allDots.forEach(d => d.classList.remove('selected'));
+                    dot.classList.add('selected');
+                    openScorecard(dot._phenomenonItem);
+                } else {
                     // It was a click, not a drag
                     allDots.forEach(d => d.classList.remove('selected'));
                     dot.classList.add('selected');
