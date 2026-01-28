@@ -538,8 +538,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔮 AI Foresight Scanner</h1>
-            <p class="subtitle">Discover trends, weak signals, and future disruptions</p>
+            <h1>Strategic Foresight Scanner</h1>
+            <p class="subtitle">Identify emerging trends, signals, and risk factors</p>
         </header>
 
         <div class="search-box">
@@ -548,25 +548,25 @@
                     type="text"
                     class="search-input"
                     id="topicInput"
-                    placeholder="Enter a topic to scan (e.g., artificial intelligence in healthcare)"
+                    placeholder="Enter a topic to analyze (e.g., artificial intelligence in healthcare)"
                     required
                 >
                 <button type="submit" class="scan-button" id="scanButton">
-                    Scan Future
+                    Run Analysis
                 </button>
             </form>
             <div class="examples">
                 Try:
                 <span onclick="setTopic('artificial intelligence in healthcare')">AI in healthcare</span> •
                 <span onclick="setTopic('quantum computing')">quantum computing</span> •
-                <span onclick="setTopic('future of work')">future of work</span> •
+                <span onclick="setTopic('supply chain resilience')">supply chain</span> •
                 <span onclick="setTopic('renewable energy')">renewable energy</span>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p class="loading-text">Scanning the future... This may take 10-20 seconds.</p>
+            <p class="loading-text">Analyzing sources... This may take 10-20 seconds.</p>
         </div>
 
         <div class="error-message" id="errorMessage"></div>
@@ -603,13 +603,13 @@
             <div id="phenomenaList"></div>
 
             <div class="sources-section" id="sourcesSection">
-                <h3 class="sources-title">📚 Sources</h3>
+                <h3 class="sources-title">Sources</h3>
                 <div id="sourcesList"></div>
             </div>
         </div>
 
         <footer>
-            <p>Powered by Claude AI • Built with AI Foresight Scanner</p>
+            <p>Powered by Claude AI</p>
         </footer>
     </div>
 
@@ -727,19 +727,8 @@
         }
 
         function getCategories(phenomena) {
-            const categories = [];
-            phenomena.forEach(item => {
-                const category = item.category || 'Uncategorized';
-                if (!categories.includes(category)) {
-                    categories.push(category);
-                }
-            });
-
-            if (categories.length < 2) {
-                categories.push('Additional');
-            }
-
-            return categories.slice(0, 4);
+            // Fixed categories for consistent radar layout
+            return ['Strategic', 'Operational', 'Financial', 'Regulatory'];
         }
 
         function scoreSource(source) {
