@@ -28,7 +28,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 40px 20px;
         }
@@ -235,7 +235,7 @@
         .radar-canvas {
             width: 100%;
             aspect-ratio: 1 / 1;
-            max-width: 520px;
+            max-width: 700px;
             margin: 0 auto;
         }
 
@@ -860,8 +860,8 @@
                 'Long-term (10-20 years)': 0.85
             };
 
-            const size = 500;
-            const padding = 40;
+            const size = 650;
+            const padding = 50;
             const center = size / 2 + padding;
             const maxRadius = size * 0.42;
 
@@ -909,19 +909,105 @@
             });
             svg.appendChild(defs);
 
-            horizons.forEach((horizon, hIndex) => {
+            // Current year for time indicator
+            const currentYear = new Date().getFullYear();
+
+            // Year rings at 5-year intervals (0, 5, 10, 15, 20 years)
+            const yearIntervals = [
+                { years: 0, radius: 0.08, label: currentYear },
+                { years: 5, radius: 0.35, label: currentYear + 5 },
+                { years: 10, radius: 0.6, label: currentYear + 10 },
+                { years: 15, radius: 0.725, label: currentYear + 15 },
+                { years: 20, radius: 0.85, label: currentYear + 20 }
+            ];
+
+            // Draw year rings
+            yearIntervals.forEach((interval, index) => {
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
                 circle.setAttribute('cx', center);
                 circle.setAttribute('cy', center);
-                circle.setAttribute('r', maxRadius * horizonRadii[horizon]);
+                circle.setAttribute('r', maxRadius * interval.radius);
                 circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', 'rgba(0, 174, 239, 0.5)');
-                circle.setAttribute('stroke-width', '2');
-                circle.setAttribute('stroke-dasharray', '8 6');
+                circle.setAttribute('stroke', index === 0 ? 'rgba(0, 174, 239, 0.8)' : 'rgba(0, 174, 239, 0.5)');
+                circle.setAttribute('stroke-width', index === 0 ? '3' : '2');
+                circle.setAttribute('stroke-dasharray', index === 0 ? 'none' : '8 6');
                 circle.classList.add('radar-ring');
-                circle.style.animationDelay = `${hIndex * 0.5}s`;
+                circle.style.animationDelay = `${index * 0.5}s`;
                 svg.appendChild(circle);
+
+                // Add year label on the right side of each ring (except center)
+                if (index > 0) {
+                    const yearLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    yearLabel.setAttribute('x', center + maxRadius * interval.radius + 8);
+                    yearLabel.setAttribute('y', center + 4);
+                    yearLabel.setAttribute('fill', 'rgba(0, 174, 239, 0.7)');
+                    yearLabel.setAttribute('font-size', '11');
+                    yearLabel.setAttribute('font-weight', '500');
+                    yearLabel.setAttribute('text-anchor', 'start');
+                    yearLabel.textContent = interval.label;
+                    svg.appendChild(yearLabel);
+                }
             });
+
+            // Center "NOW" label
+            const nowLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            nowLabel.setAttribute('x', center);
+            nowLabel.setAttribute('y', center + 4);
+            nowLabel.setAttribute('fill', '#00aeef');
+            nowLabel.setAttribute('font-size', '12');
+            nowLabel.setAttribute('font-weight', '700');
+            nowLabel.setAttribute('text-anchor', 'middle');
+            nowLabel.textContent = 'NOW';
+            svg.appendChild(nowLabel);
+
+            // Time arrow pointing outward (bottom right diagonal)
+            const arrowAngle = Math.PI / 4; // 45 degrees (bottom-right)
+            const arrowStartRadius = maxRadius * 0.15;
+            const arrowEndRadius = maxRadius * 0.92;
+            const arrowX1 = center + Math.cos(arrowAngle) * arrowStartRadius;
+            const arrowY1 = center + Math.sin(arrowAngle) * arrowStartRadius;
+            const arrowX2 = center + Math.cos(arrowAngle) * arrowEndRadius;
+            const arrowY2 = center + Math.sin(arrowAngle) * arrowEndRadius;
+
+            // Arrow line
+            const arrowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            arrowLine.setAttribute('x1', arrowX1);
+            arrowLine.setAttribute('y1', arrowY1);
+            arrowLine.setAttribute('x2', arrowX2);
+            arrowLine.setAttribute('y2', arrowY2);
+            arrowLine.setAttribute('stroke', 'rgba(255, 255, 255, 0.4)');
+            arrowLine.setAttribute('stroke-width', '2');
+            arrowLine.setAttribute('stroke-dasharray', '6 4');
+            svg.appendChild(arrowLine);
+
+            // Arrow head
+            const arrowHeadSize = 10;
+            const arrowHead = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            const tipX = arrowX2;
+            const tipY = arrowY2;
+            const baseAngle1 = arrowAngle + Math.PI * 0.85;
+            const baseAngle2 = arrowAngle - Math.PI * 0.85;
+            const base1X = tipX + Math.cos(baseAngle1) * arrowHeadSize;
+            const base1Y = tipY + Math.sin(baseAngle1) * arrowHeadSize;
+            const base2X = tipX + Math.cos(baseAngle2) * arrowHeadSize;
+            const base2Y = tipY + Math.sin(baseAngle2) * arrowHeadSize;
+            arrowHead.setAttribute('points', `${tipX},${tipY} ${base1X},${base1Y} ${base2X},${base2Y}`);
+            arrowHead.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
+            svg.appendChild(arrowHead);
+
+            // "FUTURE" label at arrow tip
+            const futureLabelX = center + Math.cos(arrowAngle) * (arrowEndRadius + 20);
+            const futureLabelY = center + Math.sin(arrowAngle) * (arrowEndRadius + 20);
+            const futureLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            futureLabel.setAttribute('x', futureLabelX);
+            futureLabel.setAttribute('y', futureLabelY);
+            futureLabel.setAttribute('fill', 'rgba(255, 255, 255, 0.6)');
+            futureLabel.setAttribute('font-size', '11');
+            futureLabel.setAttribute('font-weight', '600');
+            futureLabel.setAttribute('text-anchor', 'middle');
+            futureLabel.setAttribute('transform', `rotate(45, ${futureLabelX}, ${futureLabelY})`);
+            futureLabel.textContent = 'FUTURE →';
+            svg.appendChild(futureLabel);
 
             categories.forEach((category, index) => {
                 const angle = (Math.PI * 2 * index) / categories.length - Math.PI / 2;
@@ -951,6 +1037,48 @@
             // Store all dots for selection management
             const allDots = [];
 
+            // Drag state management
+            let draggedDot = null;
+            let isDragging = false;
+            let dragStartPos = { x: 0, y: 0 };
+            let dragThreshold = 5; // pixels moved before considered a drag
+
+            // Get SVG coordinates from mouse event
+            function getSVGCoords(evt) {
+                const rect = svg.getBoundingClientRect();
+                const viewBox = svg.viewBox.baseVal;
+                const scaleX = viewBox.width / rect.width;
+                const scaleY = viewBox.height / rect.height;
+                return {
+                    x: (evt.clientX - rect.left) * scaleX,
+                    y: (evt.clientY - rect.top) * scaleY
+                };
+            }
+
+            // Constrain position within radar bounds
+            function constrainToRadar(x, y) {
+                const dx = x - center;
+                const dy = y - center;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minRadius = maxRadius * 0.12;
+                const maxAllowedRadius = maxRadius * 0.92;
+
+                if (distance < minRadius) {
+                    const angle = Math.atan2(dy, dx);
+                    return {
+                        x: center + Math.cos(angle) * minRadius,
+                        y: center + Math.sin(angle) * minRadius
+                    };
+                } else if (distance > maxAllowedRadius) {
+                    const angle = Math.atan2(dy, dx);
+                    return {
+                        x: center + Math.cos(angle) * maxAllowedRadius,
+                        y: center + Math.sin(angle) * maxAllowedRadius
+                    };
+                }
+                return { x, y };
+            }
+
             items.forEach((item, index) => {
                 const category = categories.includes(item.category) ? item.category : categories[0];
                 const categoryIndex = categories.indexOf(category);
@@ -977,24 +1105,75 @@
                 dot.setAttribute('role', 'button');
                 dot.setAttribute('data-index', index);
                 dot.classList.add('radar-dot');
-                dot.style.cursor = 'pointer';
+                dot.style.cursor = 'grab';
                 dot.style.color = color;
 
                 const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
                 title.textContent = item.title || 'Phenomenon';
                 dot.appendChild(title);
 
-                dot.addEventListener('click', () => {
-                    // Deselect all dots
-                    allDots.forEach(d => d.classList.remove('selected'));
-                    // Select this dot
-                    dot.classList.add('selected');
-                    // Open scorecard
-                    openScorecard(item);
+                // Mouse down - start potential drag
+                dot.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    draggedDot = dot;
+                    isDragging = false;
+                    const coords = getSVGCoords(e);
+                    dragStartPos = { x: coords.x, y: coords.y };
+                    dot.style.cursor = 'grabbing';
                 });
+
+                // Store item reference on dot for click handler
+                dot._phenomenonItem = item;
 
                 allDots.push(dot);
                 svg.appendChild(dot);
+            });
+
+            // Mouse move on SVG - handle drag
+            svg.addEventListener('mousemove', (e) => {
+                if (!draggedDot) return;
+
+                const coords = getSVGCoords(e);
+                const dx = coords.x - dragStartPos.x;
+                const dy = coords.y - dragStartPos.y;
+
+                // Check if we've moved enough to be considered a drag
+                if (!isDragging && Math.sqrt(dx * dx + dy * dy) > dragThreshold) {
+                    isDragging = true;
+                }
+
+                if (isDragging) {
+                    const constrained = constrainToRadar(coords.x, coords.y);
+                    draggedDot.setAttribute('cx', constrained.x);
+                    draggedDot.setAttribute('cy', constrained.y);
+                }
+            });
+
+            // Mouse up - end drag or trigger click
+            svg.addEventListener('mouseup', (e) => {
+                if (!draggedDot) return;
+
+                const dot = draggedDot;
+                dot.style.cursor = 'grab';
+
+                if (!isDragging) {
+                    // It was a click, not a drag
+                    allDots.forEach(d => d.classList.remove('selected'));
+                    dot.classList.add('selected');
+                    openScorecard(dot._phenomenonItem);
+                }
+
+                draggedDot = null;
+                isDragging = false;
+            });
+
+            // Mouse leave SVG - cancel drag
+            svg.addEventListener('mouseleave', () => {
+                if (draggedDot) {
+                    draggedDot.style.cursor = 'grab';
+                    draggedDot = null;
+                    isDragging = false;
+                }
             });
 
             container.appendChild(svg);

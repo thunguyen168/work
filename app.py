@@ -67,7 +67,7 @@ def analyze_with_claude(topic: str, search_results: list) -> dict:
     for i, result in enumerate(search_results, 1):
         sources_text += f"\n{i}. {result['title']}\n   {result['snippet']}\n   Source: {result['link']}\n"
     
-    prompt = f"""You are a strategic foresight analyst. Based on the search results below about "{topic}", identify exactly 10 key phenomena (trends, weak signals, or potential disruptions).
+    prompt = f"""You are a strategic foresight analyst. Based on the search results below about "{topic}", identify exactly 20 key phenomena (trends, weak signals, or potential disruptions).
 
 Categorize each phenomenon into one of these four categories:
 - "Strategic" - Long-term direction, competitive positioning, market shifts
@@ -110,7 +110,7 @@ Return ONLY the JSON array, no other text."""
 
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=2000,
+        max_tokens=4000,
         messages=[{"role": "user", "content": prompt}]
     )
     
@@ -189,8 +189,8 @@ def scan_topic():
                 unique_results.append(r)
         
         # Step 2: Analyze with Claude (single API call)
-        analysis_sources = unique_results[:10]
-        analysis = analyze_with_claude(topic, analysis_sources)  # Limit to 10 sources
+        analysis_sources = unique_results[:15]
+        analysis = analyze_with_claude(topic, analysis_sources)  # Limit to 15 sources
         
         return jsonify({
             'success': True,
