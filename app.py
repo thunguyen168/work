@@ -145,7 +145,7 @@ TIMING: Each phenomenon has an expert-assessed timeframe within which it is anti
 - "Long-term (10-20 years)"
 IMPORTANT: Do NOT specify timing for Weak Signals. Weak signals are observations of a potential change just beginning to form, and there isn't enough data to assess their possible development paths. For weak signals, set timing to null.
 
-THEME TAGS: Provide 1-3 short theme tags that help the reader understand the category of the phenomenon at a glance. These are concise labels (e.g., "AI", "Healthcare", "Regulation", "Energy", "Supply Chain", "Cybersecurity", "Climate"). Tags should be industry- or domain-specific.
+THEME TAGS: Each phenomenon MUST be assigned exactly one primary category from these four fixed categories: "Strategic", "Regulatory", "Operational", "Financial". This primary category determines the radar quadrant. You may also add 1-2 additional descriptive tags (e.g., "AI", "Healthcare", "Energy") but the FIRST tag must always be one of the four fixed categories.
 
 WRITING STYLE - VALUE RATIONALITY:
 - Avoid dichotomous good-bad appraisals. Present descriptions in a neutral manner.
@@ -168,19 +168,21 @@ For each phenomenon, provide:
 3. **Type**: One of: "Strengthening", "Weakening", "Established", "Weak Signal", or "Wild Card"
 4. **Timing**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)". Set to null for Weak Signals.
 5. **Summary**: A single paragraph synopsis explaining the core of the phenomenon, its current situation, and its most likely future development path and impacts.
-6. **Background & Impacts**: 2-4 sentences outlining the phenomenon's history and relevance, its current state, and its potential impacts with prominent case examples.
-7. **Additional Information**: 1-3 additional source references (statistics, news articles, journal articles, product releases, or opinion pieces) that provide further context. Each entry should include a brief description of what the source covers.
+6. **Background**: 1-2 sentences outlining the phenomenon's history, relevance, and current state.
+7. **Impact**: 1-2 sentences describing the phenomenon's potential impacts with prominent case examples.
+8. **Additional Information**: 1-3 additional source references (statistics, news articles, journal articles, product releases, or opinion pieces) that provide further context. Each entry should include the article title, the source URL, and a brief description of what the source covers. Format each entry as: "Article Title (URL): description".
 
 Format your response as a JSON array like this:
 [
   {{
     "title": "Example Trend",
-    "theme_tags": ["Technology", "Healthcare"],
+    "theme_tags": ["Strategic", "Healthcare"],
     "type": "Strengthening",
     "timing": "Near-term (0-5 years)",
     "summary": "Synopsis paragraph here...",
-    "background_and_impacts": "Background, current state, and impacts here...",
-    "additional_information": ["Source 1: description of what it covers", "Source 2: description of what it covers"]
+    "background": "History, relevance, and current state here...",
+    "impact": "Potential impacts with case examples here...",
+    "additional_information": ["Article Title (https://example.com/article): description of what it covers", "Another Article (https://example.com/article2): description"]
   }}
 ]
 
@@ -241,7 +243,8 @@ Return ONLY the JSON array, no other text."""
                 "timing": None,
                 "theme_tags": [],
                 "summary": "The AI response could not be parsed. This may be due to a temporary issue. Please try scanning again.",
-                "background_and_impacts": "",
+                "background": "",
+                "impact": "",
                 "additional_information": []
             }]
 

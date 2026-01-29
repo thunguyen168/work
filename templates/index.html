@@ -911,6 +911,18 @@
     </div>
 
     <script>
+        function linkifyAdditionalInfo(text) {
+            // Convert URLs in additional information text into hyperlinks
+            // Handles patterns like "Title (https://example.com): description"
+            // and standalone URLs
+            return text.replace(/\(?(https?:\/\/[^\s\)<>]+)\)?/g, function(match, url) {
+                if (match.startsWith('(') && match.endsWith(')')) {
+                    return '(<a href="' + url + '" target="_blank" style="color:var(--lockton-blue);text-decoration:none;">' + url + '</a>)';
+                }
+                return '<a href="' + url + '" target="_blank" style="color:var(--lockton-blue);text-decoration:none;">' + url + '</a>';
+            });
+        }
+
         function setTopic(topic) {
             document.getElementById('topicInput').value = topic;
             updateCharCount();
@@ -1003,10 +1015,17 @@
                         ? phenomenon.theme_tags.map(t => `<span class="tag">${t}</span>`).join('')
                         : '';
 
-                    const backgroundHtml = phenomenon.background_and_impacts
+                    const backgroundHtml = phenomenon.background
                         ? `<div class="phenomenon-section">
-                            <div class="phenomenon-section-title">Background & Impacts</div>
-                            <p style="color:#d6d6d6;line-height:1.6;">${phenomenon.background_and_impacts}</p>
+                            <div class="phenomenon-section-title">Background</div>
+                            <p style="color:#d6d6d6;line-height:1.6;">${phenomenon.background}</p>
+                           </div>`
+                        : '';
+
+                    const impactHtml = phenomenon.impact
+                        ? `<div class="phenomenon-section">
+                            <div class="phenomenon-section-title">Impact</div>
+                            <p style="color:#d6d6d6;line-height:1.6;">${phenomenon.impact}</p>
                            </div>`
                         : '';
 
@@ -1014,7 +1033,7 @@
                         ? `<div class="phenomenon-section">
                             <div class="phenomenon-section-title">Additional Information</div>
                             <ul class="phenomenon-list">
-                                ${phenomenon.additional_information.map(i => `<li>${i}</li>`).join('')}
+                                ${phenomenon.additional_information.map(i => `<li>${linkifyAdditionalInfo(i)}</li>`).join('')}
                             </ul>
                            </div>`
                         : '';
@@ -1029,6 +1048,7 @@
                         </div>
                         <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
                         ${backgroundHtml}
+                        ${impactHtml}
                         ${additionalInfoHtml}
                     `;
 
@@ -1055,22 +1075,8 @@
         }
 
         function getCategories(phenomena) {
-            // Derive unique theme tags from phenomena for radar quadrants
-            const tagCounts = {};
-            (phenomena || []).forEach(p => {
-                (p.theme_tags || []).forEach(tag => {
-                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                });
-            });
-            // Use top 4 most common tags, or pad with defaults
-            const sorted = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
-            const defaults = ['Strategic', 'Operational', 'Financial', 'Regulatory'];
-            while (sorted.length < 4) {
-                const next = defaults.find(d => !sorted.includes(d));
-                if (next) sorted.push(next);
-                else break;
-            }
-            return sorted.slice(0, 4);
+            // Fixed four categories for radar quadrants
+            return ['Strategic', 'Regulatory', 'Operational', 'Financial'];
         }
 
         function scoreSource(source) {
@@ -1125,20 +1131,27 @@
 
             overview.innerHTML = `<strong>Summary:</strong> ${item.summary || 'No summary available yet.'}`;
 
-            if (item.background_and_impacts) {
+            if (item.background) {
                 drivers.innerHTML = `
-                    <strong>Background & Impacts:</strong>
-                    <p style="margin-top:6px;">${item.background_and_impacts}</p>
+                    <strong>Background:</strong>
+                    <p style="margin-top:6px;">${item.background}</p>
                 `;
             } else {
                 drivers.innerHTML = '';
+            }
+
+            if (item.impact) {
+                drivers.innerHTML += `
+                    <strong style="display:block;margin-top:12px;">Impact:</strong>
+                    <p style="margin-top:6px;">${item.impact}</p>
+                `;
             }
 
             if (item.additional_information && item.additional_information.length > 0) {
                 implications.innerHTML = `
                     <strong>Additional Information:</strong>
                     <ul class="scorecard-list">
-                        ${item.additional_information.map(info => `<li>${info}</li>`).join('')}
+                        ${item.additional_information.map(info => `<li>${linkifyAdditionalInfo(info)}</li>`).join('')}
                     </ul>
                 `;
             } else {
@@ -1817,8 +1830,12 @@
                         <textarea id="edit-summary-${index}" rows="3" oninput="updatePhenomenon(${index}, 'summary', this.value)">${escapeHtml(phenomenon.summary || '')}</textarea>
                     </div>
                     <div class="edit-field">
-                        <label for="edit-background-${index}">Background & Impacts</label>
-                        <textarea id="edit-background-${index}" rows="3" oninput="updatePhenomenon(${index}, 'background_and_impacts', this.value)">${escapeHtml(phenomenon.background_and_impacts || '')}</textarea>
+                        <label for="edit-background-${index}">Background</label>
+                        <textarea id="edit-background-${index}" rows="2" oninput="updatePhenomenon(${index}, 'background', this.value)">${escapeHtml(phenomenon.background || '')}</textarea>
+                    </div>
+                    <div class="edit-field">
+                        <label for="edit-impact-${index}">Impact</label>
+                        <textarea id="edit-impact-${index}" rows="2" oninput="updatePhenomenon(${index}, 'impact', this.value)">${escapeHtml(phenomenon.impact || '')}</textarea>
                     </div>
                     <div class="edit-field">
                         <label for="edit-additional-${index}">Additional Information (one per line)</label>
@@ -1919,16 +1936,22 @@
                         ${(p.theme_tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
                     </div>
                     <p class="summary">${escapeHtml(p.summary || '')}</p>
-                    ${p.background_and_impacts ? `
+                    ${p.background ? `
                         <div class="section">
-                            <h4>Background & Impacts</h4>
-                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.background_and_impacts)}</p>
+                            <h4>Background</h4>
+                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.background)}</p>
+                        </div>
+                    ` : ''}
+                    ${p.impact ? `
+                        <div class="section">
+                            <h4>Impact</h4>
+                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.impact)}</p>
                         </div>
                     ` : ''}
                     ${p.additional_information && p.additional_information.length > 0 ? `
                         <div class="section">
                             <h4>Additional Information</h4>
-                            <ul>${p.additional_information.map(info => `<li>${escapeHtml(info)}</li>`).join('')}</ul>
+                            <ul>${p.additional_information.map(info => `<li>${linkifyAdditionalInfo(info)}</li>`).join('')}</ul>
                         </div>
                     ` : ''}
                 </div>
