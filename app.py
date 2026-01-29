@@ -118,7 +118,14 @@ def analyze_with_claude(topic: str, search_results: list) -> dict:
     for i, result in enumerate(search_results, 1):
         sources_text += f"\n{i}. {result['title']}\n   {result['snippet']}\n   Source: {result['link']}\n"
 
-    prompt = f"""You are a strategic foresight analyst. Based on the search results below about "{topic}", identify exactly 20 key phenomena (trends, weak signals, or potential disruptions).
+    prompt = f"""You are a strategic foresight analyst following a systematic methodology for identifying phenomena. Based on the search results below about "{topic}", identify exactly 20 key phenomena.
+
+PHENOMENON CRITERIA - Each phenomenon must meet ALL of these:
+1. It must have a significant impact on several industries in the future.
+2. Its potential impact is informed by the available evidence (not speculation alone).
+3. It must be covered in several trustworthy publications for verification purposes (wild cards and weak signals are treated more flexibly here).
+4. It must have a direction: either getting stronger, broader, deeper, or weaker, or merging with other phenomena. General themes like "Use of fossil fuels" or "Sharing economy" alone are NOT phenomena.
+5. It must have a sufficiently independent and robust core description that can be verified.
 
 Categorize each phenomenon into one of these four categories:
 - "Strategic" - Long-term direction, competitive positioning, market shifts
@@ -126,21 +133,39 @@ Categorize each phenomenon into one of these four categories:
 - "Financial" - Economic factors, costs, investments, market valuations
 - "Regulatory" - Laws, compliance, policy changes, governance
 
-IMPORTANT: You MUST include at least one phenomenon of each signal type:
-- At least 1 "Strengthening Trend" (a trend gaining momentum)
-- At least 1 "Weakening Trend" (a trend losing momentum or declining)
-- At least 1 "Weak Signal" (an early indicator that could become significant)
-- At least 1 "Wild Card" (a low-probability but high-impact potential event)
+COLOUR-CODED SIGNAL TYPES - You MUST include at least one of each:
+- "Strengthening" (GREEN): The issue is becoming more common or acute during the given timeframe. Most of its change potential is still ahead.
+- "Weakening" (BLUE): The issue is becoming more unusual. During the given timeframe, most of its change potential or value has already occurred.
+- "Established" (PURPLE): The issue has stabilised in its development. It has future relevance, but there is no indication it will significantly strengthen or weaken within the given timeframe.
+- "Weak Signal" (GREY): A small emerging issue. At the given timeframe, it is still hard to say whether it will become a trend or fade away without substantial impact.
+- "Wild Card" (RED): A possible but not probable event or change. Early information about a potential emerging risk or opportunity. Probability within the given timeframe is between 5% to 30%.
+
+TIME HORIZON: Each phenomenon has a time range indicating when it is expected to accelerate in speed of change, stabilise, or begin to decline.
+- "Near-term (0-5 years)"
+- "Mid-term (5-10 years)"
+- "Long-term (10-20 years)"
+
+WRITING STYLE - VALUE RATIONALITY:
+- Avoid dichotomous good-bad appraisals. Present descriptions in a neutral manner.
+- Write descriptions as versatile and multifaceted analyses, originating from one single set of values but applicable to multiple perspectives.
+- The summary should help the reader recognise the point of view the text represents, the formulation used, and the potential way to use it.
+- Phenomenon descriptions are not truths carved in stone; they are analyses from one set of values that can be interpreted from multiple angles.
+
+SOURCE RELIABILITY:
+- The core of each phenomenon must be backed up by reliable sources.
+- Prioritise: peer-reviewed scientific journals (Nature, Science), self-evidently proper scientific journals, Reuters, CNN, BBC, Financial Times, The Guardian, Wired, Scientific American.
+- Also consider publications by universities, international research organisations (World Economic Forum, OECD).
+- Internet-based, mainly ad-supported and freelance driven news distribution sites such as Popular Mechanics or Interesting Engineering are considered sufficiently reliable to be used as sources.
 
 SEARCH RESULTS:
 {sources_text}
 
 For each phenomenon, provide:
-1. **Title**: A clear, concise name
-2. **Type**: One of: "Strengthening Trend", "Weakening Trend", "Weak Signal", or "Wild Card"
+1. **Title**: A clear, concise name (not a generic theme)
+2. **Type**: One of: "Strengthening", "Weakening", "Established", "Weak Signal", or "Wild Card"
 3. **Time Horizon**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)"
 4. **Category**: One of: "Strategic", "Operational", "Financial", or "Regulatory"
-5. **Summary**: 2-3 sentences explaining what it is and why it matters
+5. **Summary**: 2-3 sentences explaining what it is and why it matters, written in a neutral, multifaceted style
 6. **Key Drivers**: 2-3 forces driving this phenomenon
 7. **Implications**: 1-2 potential impacts or opportunities
 
@@ -148,7 +173,7 @@ Format your response as a JSON array like this:
 [
   {{
     "title": "Example Trend",
-    "type": "Strengthening Trend",
+    "type": "Strengthening",
     "time_horizon": "Near-term (0-5 years)",
     "category": "Strategic",
     "summary": "Description here...",
