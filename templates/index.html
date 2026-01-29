@@ -991,20 +991,22 @@
                         index
                     }));
 
-                    const driversHtml = phenomenon.drivers && phenomenon.drivers.length > 0
+                    const themeTagsHtml = phenomenon.theme_tags && phenomenon.theme_tags.length > 0
+                        ? phenomenon.theme_tags.map(t => `<span class="tag">${t}</span>`).join('')
+                        : '';
+
+                    const backgroundHtml = phenomenon.background_and_impacts
                         ? `<div class="phenomenon-section">
-                            <div class="phenomenon-section-title">Key Drivers</div>
-                            <ul class="phenomenon-list">
-                                ${phenomenon.drivers.map(d => `<li>${d}</li>`).join('')}
-                            </ul>
+                            <div class="phenomenon-section-title">Background & Impacts</div>
+                            <p style="color:#d6d6d6;line-height:1.6;">${phenomenon.background_and_impacts}</p>
                            </div>`
                         : '';
 
-                    const implicationsHtml = phenomenon.implications && phenomenon.implications.length > 0
+                    const additionalInfoHtml = phenomenon.additional_information && phenomenon.additional_information.length > 0
                         ? `<div class="phenomenon-section">
-                            <div class="phenomenon-section-title">Implications</div>
+                            <div class="phenomenon-section-title">Additional Information</div>
                             <ul class="phenomenon-list">
-                                ${phenomenon.implications.map(i => `<li>${i}</li>`).join('')}
+                                ${phenomenon.additional_information.map(i => `<li>${i}</li>`).join('')}
                             </ul>
                            </div>`
                         : '';
@@ -1014,11 +1016,12 @@
                         <h3 class="phenomenon-title"><span class="ref-id">${refId}</span>${phenomenon.title || 'Untitled'}</h3>
                         <div class="phenomenon-tags">
                             ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
-                            ${phenomenon.time_horizon ? `<span class="tag horizon">${phenomenon.time_horizon}</span>` : ''}
+                            ${phenomenon.timing ? `<span class="tag horizon">${phenomenon.timing}</span>` : ''}
+                            ${themeTagsHtml}
                         </div>
                         <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
-                        ${driversHtml}
-                        ${implicationsHtml}
+                        ${backgroundHtml}
+                        ${additionalInfoHtml}
                     `;
 
                     list.appendChild(card);
@@ -1044,8 +1047,22 @@
         }
 
         function getCategories(phenomena) {
-            // Fixed categories for consistent radar layout
-            return ['Strategic', 'Operational', 'Financial', 'Regulatory'];
+            // Derive unique theme tags from phenomena for radar quadrants
+            const tagCounts = {};
+            (phenomena || []).forEach(p => {
+                (p.theme_tags || []).forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            });
+            // Use top 4 most common tags, or pad with defaults
+            const sorted = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+            const defaults = ['Strategic', 'Operational', 'Financial', 'Regulatory'];
+            while (sorted.length < 4) {
+                const next = defaults.find(d => !sorted.includes(d));
+                if (next) sorted.push(next);
+                else break;
+            }
+            return sorted.slice(0, 4);
         }
 
         function scoreSource(source) {
@@ -1089,31 +1106,31 @@
             if (item.type) {
                 meta.innerHTML += `<span class="tag type">${item.type}</span>`;
             }
-            if (item.time_horizon) {
-                meta.innerHTML += `<span class="tag horizon">${item.time_horizon}</span>`;
+            if (item.timing) {
+                meta.innerHTML += `<span class="tag horizon">${item.timing}</span>`;
             }
-            if (item.category) {
-                meta.innerHTML += `<span class="tag">${item.category}</span>`;
+            if (item.theme_tags && item.theme_tags.length > 0) {
+                item.theme_tags.forEach(tag => {
+                    meta.innerHTML += `<span class="tag">${tag}</span>`;
+                });
             }
 
-            overview.innerHTML = `<strong>Overview:</strong> ${item.summary || 'No summary available yet.'}`;
+            overview.innerHTML = `<strong>Summary:</strong> ${item.summary || 'No summary available yet.'}`;
 
-            if (item.drivers && item.drivers.length > 0) {
+            if (item.background_and_impacts) {
                 drivers.innerHTML = `
-                    <strong>Key drivers:</strong>
-                    <ul class="scorecard-list">
-                        ${item.drivers.map(driver => `<li>${driver}</li>`).join('')}
-                    </ul>
+                    <strong>Background & Impacts:</strong>
+                    <p style="margin-top:6px;">${item.background_and_impacts}</p>
                 `;
             } else {
                 drivers.innerHTML = '';
             }
 
-            if (item.implications && item.implications.length > 0) {
+            if (item.additional_information && item.additional_information.length > 0) {
                 implications.innerHTML = `
-                    <strong>Impacts:</strong>
+                    <strong>Additional Information:</strong>
                     <ul class="scorecard-list">
-                        ${item.implications.map(impact => `<li>${impact}</li>`).join('')}
+                        ${item.additional_information.map(info => `<li>${info}</li>`).join('')}
                     </ul>
                 `;
             } else {
@@ -1424,11 +1441,13 @@
             }
 
             items.forEach((item, index) => {
-                const category = categories.includes(item.category) ? item.category : categories[0];
-                const categoryIndex = categories.indexOf(category);
+                // Map item to radar quadrant using first matching theme tag
+                const itemTags = item.theme_tags || [];
+                const matchedTag = itemTags.find(t => categories.includes(t)) || categories[0];
+                const categoryIndex = categories.indexOf(matchedTag);
                 const angleOffset = (index + 1) / (items.length + 2);
                 const angle = (Math.PI * 2 * categoryIndex) / categories.length - Math.PI / 2 + angleOffset * 0.6 - 0.3;
-                const radiusScale = horizonRadii[item.time_horizon] || 0.5;
+                const radiusScale = horizonRadii[item.timing] || 0.5;
                 const jitter = (index % 5) * 0.04;
                 const radius = maxRadius * (radiusScale + jitter);
                 const x = center + Math.cos(angle) * radius;
@@ -1527,8 +1546,7 @@
                     const newTimeHorizon = getTimeHorizonFromPosition(newX, newY);
 
                     // Update the stored item
-                    dot._phenomenonItem.category = newCategory;
-                    dot._phenomenonItem.time_horizon = newTimeHorizon;
+                    dot._phenomenonItem.timing = newTimeHorizon;
 
                     // Update the phenomenon card in the list below the radar
                     const phenomenonIndex = dot._phenomenonItem.index;
@@ -1537,9 +1555,11 @@
                         const card = phenomenaList.children[phenomenonIndex];
                         const tagsDiv = card.querySelector('.phenomenon-tags');
                         if (tagsDiv) {
+                            const themeTagsHtml = (dot._phenomenonItem.theme_tags || []).map(t => `<span class="tag">${t}</span>`).join('');
                             tagsDiv.innerHTML = `
                                 ${dot._phenomenonItem.type ? `<span class="tag type">${dot._phenomenonItem.type}</span>` : ''}
                                 ${newTimeHorizon ? `<span class="tag horizon">${newTimeHorizon}</span>` : ''}
+                                ${themeTagsHtml}
                             `;
                         }
                     }
@@ -1721,14 +1741,14 @@
             const sourcesCount = data.sources ? data.sources.length : 0;
             const categoriesText = categories.join(', ');
             const horizonCounts = horizons.map(horizon => {
-                const count = items.filter(item => item.time_horizon === horizon).length;
+                const count = items.filter(item => item.timing === horizon).length;
                 const label = horizon.split(' ')[0].toLowerCase();
                 return `${count} ${label}-term`;
             }).join(', ');
             const sampleSources = getTopSources(data.sources || []).map(source => source.title).filter(Boolean).join('; ');
             const leadCategory = categories[0];
             const leadHorizon = horizons.sort((a, b) => (
-                items.filter(item => item.time_horizon === b).length - items.filter(item => item.time_horizon === a).length
+                items.filter(item => item.timing === b).length - items.filter(item => item.timing === a).length
             ))[0];
 
             summary.innerHTML = `
@@ -1752,7 +1772,6 @@
             modalBody.innerHTML = '';
 
             const types = ['Strengthening', 'Weakening', 'Established', 'Weak Signal', 'Wild Card'];
-            const categories = ['Strategic', 'Operational', 'Financial', 'Regulatory'];
             const horizons = ['Near-term (0-5 years)', 'Mid-term (5-10 years)', 'Long-term (10-20 years)'];
 
             editablePhenomena.forEach((phenomenon, index) => {
@@ -1766,7 +1785,11 @@
                             <input type="text" id="edit-title-${index}" value="${escapeHtml(phenomenon.title || '')}" oninput="updatePhenomenon(${index}, 'title', this.value)">
                         </div>
                     </div>
-                    <div class="edit-field-row">
+                    <div class="edit-field">
+                        <label for="edit-tags-${index}">Theme Tags (comma-separated)</label>
+                        <input type="text" id="edit-tags-${index}" value="${escapeHtml((phenomenon.theme_tags || []).join(', '))}" oninput="updatePhenomenonTags(${index}, this.value)">
+                    </div>
+                    <div class="edit-field-row" style="grid-template-columns: 1fr 1fr;">
                         <div class="edit-field">
                             <label for="edit-type-${index}">Signal Type</label>
                             <select id="edit-type-${index}" oninput="updatePhenomenon(${index}, 'type', this.value)">
@@ -1774,29 +1797,24 @@
                             </select>
                         </div>
                         <div class="edit-field">
-                            <label for="edit-category-${index}">Category</label>
-                            <select id="edit-category-${index}" oninput="updatePhenomenon(${index}, 'category', this.value)">
-                                ${categories.map(cat => `<option value="${cat}" ${phenomenon.category === cat ? 'selected' : ''}>${cat}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="edit-field">
-                            <label for="edit-horizon-${index}">Time Horizon</label>
-                            <select id="edit-horizon-${index}" oninput="updatePhenomenon(${index}, 'time_horizon', this.value)">
-                                ${horizons.map(horizon => `<option value="${horizon}" ${phenomenon.time_horizon === horizon ? 'selected' : ''}>${horizon}</option>`).join('')}
+                            <label for="edit-timing-${index}">Timing</label>
+                            <select id="edit-timing-${index}" oninput="updatePhenomenon(${index}, 'timing', this.value)">
+                                <option value="" ${!phenomenon.timing ? 'selected' : ''}>None (Weak Signal)</option>
+                                ${horizons.map(horizon => `<option value="${horizon}" ${phenomenon.timing === horizon ? 'selected' : ''}>${horizon}</option>`).join('')}
                             </select>
                         </div>
                     </div>
                     <div class="edit-field">
                         <label for="edit-summary-${index}">Summary</label>
-                        <textarea id="edit-summary-${index}" rows="2" oninput="updatePhenomenon(${index}, 'summary', this.value)">${escapeHtml(phenomenon.summary || '')}</textarea>
+                        <textarea id="edit-summary-${index}" rows="3" oninput="updatePhenomenon(${index}, 'summary', this.value)">${escapeHtml(phenomenon.summary || '')}</textarea>
                     </div>
                     <div class="edit-field">
-                        <label for="edit-drivers-${index}">Key Drivers (one per line)</label>
-                        <textarea id="edit-drivers-${index}" rows="2" oninput="updatePhenomenonArray(${index}, 'drivers', this.value)">${(phenomenon.drivers || []).join('\n')}</textarea>
+                        <label for="edit-background-${index}">Background & Impacts</label>
+                        <textarea id="edit-background-${index}" rows="3" oninput="updatePhenomenon(${index}, 'background_and_impacts', this.value)">${escapeHtml(phenomenon.background_and_impacts || '')}</textarea>
                     </div>
                     <div class="edit-field">
-                        <label for="edit-implications-${index}">Implications (one per line)</label>
-                        <textarea id="edit-implications-${index}" rows="2" oninput="updatePhenomenonArray(${index}, 'implications', this.value)">${(phenomenon.implications || []).join('\n')}</textarea>
+                        <label for="edit-additional-${index}">Additional Information (one per line)</label>
+                        <textarea id="edit-additional-${index}" rows="2" oninput="updatePhenomenonArray(${index}, 'additional_information', this.value)">${(phenomenon.additional_information || []).join('\n')}</textarea>
                     </div>
                 `;
                 modalBody.appendChild(editCard);
@@ -1826,6 +1844,12 @@
         function updatePhenomenonArray(index, field, value) {
             if (editablePhenomena[index]) {
                 editablePhenomena[index][field] = value.split('\n').filter(line => line.trim() !== '');
+            }
+        }
+
+        function updatePhenomenonTags(index, value) {
+            if (editablePhenomena[index]) {
+                editablePhenomena[index].theme_tags = value.split(',').map(t => t.trim()).filter(t => t !== '');
             }
         }
 
@@ -1883,20 +1907,20 @@
                     <h3>${i + 1}. ${escapeHtml(p.title || 'Untitled')}</h3>
                     <div class="tags">
                         <span class="tag type" style="background: ${typeColors[p.type] || '#00aeef'}20; border-color: ${typeColors[p.type] || '#00aeef'};">${escapeHtml(p.type || 'Unknown')}</span>
-                        <span class="tag">${escapeHtml(p.category || 'Uncategorized')}</span>
-                        <span class="tag">${escapeHtml(p.time_horizon || 'Unknown')}</span>
+                        ${p.timing ? `<span class="tag">${escapeHtml(p.timing)}</span>` : ''}
+                        ${(p.theme_tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
                     </div>
                     <p class="summary">${escapeHtml(p.summary || '')}</p>
-                    ${p.drivers && p.drivers.length > 0 ? `
+                    ${p.background_and_impacts ? `
                         <div class="section">
-                            <h4>Key Drivers</h4>
-                            <ul>${p.drivers.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>
+                            <h4>Background & Impacts</h4>
+                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.background_and_impacts)}</p>
                         </div>
                     ` : ''}
-                    ${p.implications && p.implications.length > 0 ? `
+                    ${p.additional_information && p.additional_information.length > 0 ? `
                         <div class="section">
-                            <h4>Implications</h4>
-                            <ul>${p.implications.map(imp => `<li>${escapeHtml(imp)}</li>`).join('')}</ul>
+                            <h4>Additional Information</h4>
+                            <ul>${p.additional_information.map(info => `<li>${escapeHtml(info)}</li>`).join('')}</ul>
                         </div>
                     ` : ''}
                 </div>
