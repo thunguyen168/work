@@ -62,6 +62,11 @@ def require_auth(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('authenticated'):
+            # Return JSON error for AJAX requests instead of redirecting to HTML
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+               request.content_type == 'multipart/form-data' or \
+               request.accept_mimetypes.best == 'application/json':
+                return jsonify({'error': 'Session expired. Please refresh the page and log in again.'}), 401
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
@@ -203,10 +208,11 @@ Return ONLY the JSON array, no other text."""
         phenomena = [{
             "title": "Analysis Complete",
             "type": "Note",
-            "time_horizon": "N/A",
+            "timing": None,
+            "theme_tags": [],
             "summary": response_text[:500],
-            "drivers": [],
-            "implications": []
+            "background_and_impacts": "",
+            "additional_information": []
         }]
 
     return {
