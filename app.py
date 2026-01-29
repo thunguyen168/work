@@ -127,12 +127,6 @@ PHENOMENON CRITERIA - Each phenomenon must meet ALL of these:
 4. It must have a direction: either getting stronger, broader, deeper, or weaker, or merging with other phenomena. General themes like "Use of fossil fuels" or "Sharing economy" alone are NOT phenomena.
 5. It must have a sufficiently independent and robust core description that can be verified.
 
-Categorize each phenomenon into one of these four categories:
-- "Strategic" - Long-term direction, competitive positioning, market shifts
-- "Operational" - Day-to-day processes, technology, workforce, supply chain
-- "Financial" - Economic factors, costs, investments, market valuations
-- "Regulatory" - Laws, compliance, policy changes, governance
-
 COLOUR-CODED SIGNAL TYPES - You MUST include at least one of each:
 - "Strengthening" (GREEN): The issue is becoming more common or acute during the given timeframe. Most of its change potential is still ahead.
 - "Weakening" (BLUE): The issue is becoming more unusual. During the given timeframe, most of its change potential or value has already occurred.
@@ -140,10 +134,13 @@ COLOUR-CODED SIGNAL TYPES - You MUST include at least one of each:
 - "Weak Signal" (GREY): A small emerging issue. At the given timeframe, it is still hard to say whether it will become a trend or fade away without substantial impact.
 - "Wild Card" (RED): A possible but not probable event or change. Early information about a potential emerging risk or opportunity. Probability within the given timeframe is between 5% to 30%.
 
-TIME HORIZON: Each phenomenon has a time range indicating when it is expected to accelerate in speed of change, stabilise, or begin to decline.
+TIMING: Each phenomenon has an expert-assessed timeframe within which it is anticipated to either accelerate or decline, determined using S-Curve Analysis and Trend Impact Analysis. Use one of:
 - "Near-term (0-5 years)"
 - "Mid-term (5-10 years)"
 - "Long-term (10-20 years)"
+IMPORTANT: Do NOT specify timing for Weak Signals. Weak signals are observations of a potential change just beginning to form, and there isn't enough data to assess their possible development paths. For weak signals, set timing to null.
+
+THEME TAGS: Provide 1-3 short theme tags that help the reader understand the category of the phenomenon at a glance. These are concise labels (e.g., "AI", "Healthcare", "Regulation", "Energy", "Supply Chain", "Cybersecurity", "Climate"). Tags should be industry- or domain-specific.
 
 WRITING STYLE - VALUE RATIONALITY:
 - Avoid dichotomous good-bad appraisals. Present descriptions in a neutral manner.
@@ -161,24 +158,24 @@ SEARCH RESULTS:
 {sources_text}
 
 For each phenomenon, provide:
-1. **Title**: A clear, concise name (not a generic theme)
-2. **Type**: One of: "Strengthening", "Weakening", "Established", "Weak Signal", or "Wild Card"
-3. **Time Horizon**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)"
-4. **Category**: One of: "Strategic", "Operational", "Financial", or "Regulatory"
-5. **Summary**: 2-3 sentences explaining what it is and why it matters, written in a neutral, multifaceted style
-6. **Key Drivers**: 2-3 forces driving this phenomenon
-7. **Implications**: 1-2 potential impacts or opportunities
+1. **Title**: A clear, concise name explaining the core of the phenomenon in a few words. Titles can be general (e.g., "On-Demand Services"), industry-specific (e.g., "Robotics in Healthcare"), or for wild cards, a mini-sentence describing a potential future state (e.g., "Knowledge Behind Paywall").
+2. **Theme Tags**: 1-3 short tags for categorisation at a glance (e.g., ["AI", "Healthcare"])
+3. **Type**: One of: "Strengthening", "Weakening", "Established", "Weak Signal", or "Wild Card"
+4. **Timing**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)". Set to null for Weak Signals.
+5. **Summary**: A single paragraph synopsis explaining the core of the phenomenon, its current situation, and its most likely future development path and impacts.
+6. **Background & Impacts**: 2-4 sentences outlining the phenomenon's history and relevance, its current state, and its potential impacts with prominent case examples.
+7. **Additional Information**: 1-3 additional source references (statistics, news articles, journal articles, product releases, or opinion pieces) that provide further context. Each entry should include a brief description of what the source covers.
 
 Format your response as a JSON array like this:
 [
   {{
     "title": "Example Trend",
+    "theme_tags": ["Technology", "Healthcare"],
     "type": "Strengthening",
-    "time_horizon": "Near-term (0-5 years)",
-    "category": "Strategic",
-    "summary": "Description here...",
-    "drivers": ["Driver 1", "Driver 2"],
-    "implications": ["Implication 1", "Implication 2"]
+    "timing": "Near-term (0-5 years)",
+    "summary": "Synopsis paragraph here...",
+    "background_and_impacts": "Background, current state, and impacts here...",
+    "additional_information": ["Source 1: description of what it covers", "Source 2: description of what it covers"]
   }}
 ]
 
