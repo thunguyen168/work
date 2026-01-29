@@ -954,6 +954,14 @@
                     body: formData
                 });
 
+                const contentType = response.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    if (response.status === 401 || response.redirected) {
+                        throw new Error('Session expired. Please refresh the page and log in again.');
+                    }
+                    throw new Error('Unexpected server response. Please try again.');
+                }
+
                 const data = await response.json();
 
                 if (data.error) {
