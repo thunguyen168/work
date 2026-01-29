@@ -842,7 +842,8 @@
                 <h2 class="results-title" id="resultsTitle">Results</h2>
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <span class="results-count" id="resultsCount">0 phenomena found</span>
-                    <button class="download-report-btn" id="downloadReportBtn" onclick="openDownloadModal()">Download Report</button>
+                    <button class="download-report-btn" id="editContentBtn" onclick="openEditModal()">Edit Content</button>
+                    <button class="download-report-btn" id="downloadReportBtn" onclick="downloadReport()">Download Report</button>
                 </div>
             </div>
             <div class="scorecard" id="scorecard">
@@ -888,15 +889,15 @@
         <div class="download-modal-overlay" id="downloadModal">
             <div class="download-modal">
                 <div class="download-modal-header">
-                    <h3 class="download-modal-title">Edit & Download Report</h3>
-                    <button class="download-modal-close" onclick="closeDownloadModal()">✕</button>
+                    <h3 class="download-modal-title">Edit Content</h3>
+                    <button class="download-modal-close" onclick="closeEditModal()">✕</button>
                 </div>
                 <div class="download-modal-body" id="downloadModalBody">
                     <!-- Phenomena edit forms will be populated here -->
                 </div>
                 <div class="download-modal-footer">
-                    <button class="download-btn download-btn-secondary" onclick="closeDownloadModal()">Cancel</button>
-                    <button class="download-btn download-btn-primary" onclick="downloadReport()">Download HTML Report</button>
+                    <button class="download-btn download-btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button class="download-btn download-btn-primary" onclick="applyEdits()">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -1362,8 +1363,8 @@
                 const scaleX = viewBox.width / rect.width;
                 const scaleY = viewBox.height / rect.height;
                 return {
-                    x: (evt.clientX - rect.left) * scaleX,
-                    y: (evt.clientY - rect.top) * scaleY
+                    x: viewBox.x + (evt.clientX - rect.left) * scaleX,
+                    y: viewBox.y + (evt.clientY - rect.top) * scaleY
                 };
             }
 
@@ -1738,9 +1739,9 @@
         // Download modal functionality
         let editablePhenomena = [];
 
-        function openDownloadModal() {
+        function openEditModal() {
             if (!window.latestScanData || !window.latestScanData.phenomena) {
-                alert('No data available to download. Please run a scan first.');
+                alert('No data available to edit. Please run a scan first.');
                 return;
             }
 
@@ -1805,7 +1806,7 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function closeDownloadModal() {
+        function closeEditModal() {
             document.getElementById('downloadModal').classList.remove('active');
             document.body.style.overflow = '';
         }
@@ -1828,16 +1829,33 @@
             }
         }
 
-        function downloadReport() {
-            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
+        function applyEdits() {
+            // Apply edited phenomena back to the main data
+            window.latestScanData.phenomena = JSON.parse(JSON.stringify(editablePhenomena));
             const sources = window.latestScanData.sources || [];
 
-            // Re-render radar with edited phenomena so the SVG reflects edits
-            renderRadarMap({ phenomena: editablePhenomena, sources: sources });
+            // Re-render radar and results with edited data
+            renderRadarMap({ phenomena: window.latestScanData.phenomena, sources: sources });
+            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
+            displayResults(topic, window.latestScanData);
+
+            closeEditModal();
+        }
+
+        function downloadReport() {
+            if (!window.latestScanData || !window.latestScanData.phenomena) {
+                alert('No data available to download. Please run a scan first.');
+                return;
+            }
+
+            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
+            const phenomena = window.latestScanData.phenomena;
+            const sources = window.latestScanData.sources || [];
+
             const radarSvg = document.getElementById('radarCanvas').innerHTML;
 
             // Generate the HTML report
-            const reportHtml = generateReportHtml(topic, editablePhenomena, radarSvg, sources);
+            const reportHtml = generateReportHtml(topic, phenomena, radarSvg, sources);
 
             // Create and trigger download
             const blob = new Blob([reportHtml], { type: 'text/html' });
@@ -1849,8 +1867,6 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-
-            closeDownloadModal();
         }
 
         function generateReportHtml(topic, phenomena, radarSvg, sources) {
@@ -1994,14 +2010,14 @@
         // Close modal when clicking outside
         document.getElementById('downloadModal').addEventListener('click', function(e) {
             if (e.target === this) {
-                closeDownloadModal();
+                closeEditModal();
             }
         });
 
         // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.getElementById('downloadModal').classList.contains('active')) {
-                closeDownloadModal();
+                closeEditModal();
             }
         });
     </script>
