@@ -188,7 +188,7 @@ Return ONLY the JSON array, no other text."""
 
     response = client.messages.create(
         model="claude-sonnet-4-20250514",
-        max_tokens=4000,
+        max_tokens=16000,
         messages=[{"role": "user", "content": prompt}]
     )
 
@@ -198,22 +198,52 @@ Return ONLY the JSON array, no other text."""
     # Try to extract JSON from the response
     try:
         # Remove markdown code blocks if present
-        if response_text.startswith("```"):
-            response_text = response_text.split("```")[1]
-            if response_text.startswith("json"):
-                response_text = response_text[4:]
+        if "```" in response_text:
+            # Extract content between first pair of triple backticks
+            parts = response_text.split("```")
+            if len(parts) >= 3:
+                inner = parts[1]
+            else:
+                inner = parts[1] if len(parts) > 1 else response_text
+            if inner.startswith("json"):
+                inner = inner[4:]
+            response_text = inner.strip()
+
+        # Find the JSON array boundaries
+        start = response_text.find('[')
+        if start != -1:
+            end = response_text.rfind(']')
+            if end != -1:
+                response_text = response_text[start:end + 1]
+
         phenomena = json.loads(response_text)
     except json.JSONDecodeError:
-        # If parsing fails, return a simple error structure
-        phenomena = [{
-            "title": "Analysis Complete",
-            "type": "Note",
-            "timing": None,
-            "theme_tags": [],
-            "summary": response_text[:500],
-            "background_and_impacts": "",
-            "additional_information": []
-        }]
+        # Try to salvage truncated JSON by closing open structures
+        try:
+            # Find last complete object (ends with })
+            last_complete = response_text.rfind('}')
+            if last_complete != -1:
+                truncated = response_text[:last_complete + 1]
+                # Ensure it starts with [ and ends properly
+                if '[' in truncated:
+                    truncated = truncated[truncated.find('['):]
+                    if not truncated.endswith(']'):
+                        truncated += ']'
+                    phenomena = json.loads(truncated)
+                else:
+                    raise json.JSONDecodeError("No array found", "", 0)
+            else:
+                raise json.JSONDecodeError("No objects found", "", 0)
+        except json.JSONDecodeError:
+            phenomena = [{
+                "title": "Analysis Error",
+                "type": "Note",
+                "timing": None,
+                "theme_tags": [],
+                "summary": "The AI response could not be parsed. This may be due to a temporary issue. Please try scanning again.",
+                "background_and_impacts": "",
+                "additional_information": []
+            }]
 
     return {
         "topic": topic,
