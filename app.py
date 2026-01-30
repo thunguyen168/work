@@ -188,14 +188,18 @@ Format your response as a JSON array like this:
 
 Return ONLY the JSON array, no other text."""
 
-    response = client.messages.create(
+    # Use streaming to keep the worker alive during long responses
+    response_text = ""
+    with client.messages.stream(
         model="claude-sonnet-4-20250514",
         max_tokens=16000,
         messages=[{"role": "user", "content": prompt}]
-    )
+    ) as stream:
+        for text in stream.text_stream:
+            response_text += text
 
     # Parse the response
-    response_text = response.content[0].text.strip()
+    response_text = response_text.strip()
 
     # Try to extract JSON from the response
     try:
