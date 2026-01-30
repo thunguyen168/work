@@ -116,7 +116,7 @@ def search_web(query: str, num_results: int = 10) -> list:
 def analyze_with_claude(topic: str, search_results: list) -> dict:
     """Use Claude to analyze search results and identify trends."""
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=240.0)
 
     # Format search results for the prompt
     sources_text = ""
