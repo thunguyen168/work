@@ -145,7 +145,7 @@ TIMING: Each phenomenon has an expert-assessed timeframe within which it is anti
 - "Long-term (10-20 years)"
 IMPORTANT: Do NOT specify timing for Weak Signals. Weak signals are observations of a potential change just beginning to form, and there isn't enough data to assess their possible development paths. For weak signals, set timing to null.
 
-THEME TAGS: Each phenomenon MUST be assigned exactly one primary category from these four fixed categories: "Strategic", "Regulatory", "Operational", "Financial". This primary category determines the radar quadrant. You may also add 1-2 additional descriptive tags (e.g., "AI", "Healthcare", "Energy") but the FIRST tag must always be one of the four fixed categories.
+THEME TAGS: Each phenomenon MUST be assigned exactly one category from these four fixed categories: "Strategic", "Regulatory", "Operational", "Financial". This category determines the radar quadrant. The theme_tags array should contain only this single category.
 
 WRITING STYLE - VALUE RATIONALITY:
 - Avoid dichotomous good-bad appraisals. Present descriptions in a neutral manner.
@@ -164,7 +164,7 @@ SEARCH RESULTS:
 
 For each phenomenon, provide:
 1. **Title**: A clear, concise name explaining the core of the phenomenon in a few words. Titles can be general (e.g., "On-Demand Services"), industry-specific (e.g., "Robotics in Healthcare"), or for wild cards, a mini-sentence describing a potential future state (e.g., "Knowledge Behind Paywall").
-2. **Theme Tags**: 1-3 short tags for categorisation at a glance (e.g., ["AI", "Healthcare"])
+2. **Theme Tags**: Exactly one category from: "Strategic", "Regulatory", "Operational", "Financial" (e.g., ["Strategic"])
 3. **Type**: One of: "Strengthening", "Weakening", "Established", "Weak Signal", or "Wild Card"
 4. **Timing**: "Near-term (0-5 years)", "Mid-term (5-10 years)", or "Long-term (10-20 years)". Set to null for Weak Signals.
 5. **Summary**: A single paragraph synopsis explaining the core of the phenomenon, its current situation, and its most likely future development path and impacts.
@@ -176,7 +176,7 @@ Format your response as a JSON array like this:
 [
   {{
     "title": "Example Trend",
-    "theme_tags": ["Strategic", "Healthcare"],
+    "theme_tags": ["Strategic"],
     "type": "Strengthening",
     "timing": "Near-term (0-5 years)",
     "summary": "Synopsis paragraph here...",

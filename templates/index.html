@@ -1007,15 +1007,10 @@
                 data.phenomena.forEach((phenomenon, index) => {
                     const card = document.createElement('div');
                     card.className = 'phenomenon-card';
-                    card.addEventListener('click', () => openScorecard({
-                        ...phenomenon,
-                        kind: 'phenomenon',
-                        index
-                    }));
-
-                    const themeTagsHtml = phenomenon.theme_tags && phenomenon.theme_tags.length > 0
-                        ? phenomenon.theme_tags.map(t => `<span class="tag">${t}</span>`).join('')
+                    const category = (phenomenon.theme_tags && phenomenon.theme_tags.length > 0)
+                        ? phenomenon.theme_tags.find(t => ['Strategic', 'Regulatory', 'Operational', 'Financial'].includes(t)) || ''
                         : '';
+                    const categoryHtml = category ? `<span class="tag">${category}</span>` : '';
 
                     const backgroundHtml = phenomenon.background
                         ? `<div class="phenomenon-section">
@@ -1046,7 +1041,7 @@
                         <div class="phenomenon-tags">
                             ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
                             ${phenomenon.timing ? `<span class="tag horizon">${phenomenon.timing}</span>` : ''}
-                            ${themeTagsHtml}
+                            ${categoryHtml}
                         </div>
                         <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
                         ${backgroundHtml}
@@ -1125,10 +1120,10 @@
             if (item.timing) {
                 meta.innerHTML += `<span class="tag horizon">${item.timing}</span>`;
             }
-            if (item.theme_tags && item.theme_tags.length > 0) {
-                item.theme_tags.forEach(tag => {
-                    meta.innerHTML += `<span class="tag">${tag}</span>`;
-                });
+            const categories = ['Strategic', 'Regulatory', 'Operational', 'Financial'];
+            const itemCategory = (item.theme_tags || []).find(t => categories.includes(t));
+            if (itemCategory) {
+                meta.innerHTML += `<span class="tag">${itemCategory}</span>`;
             }
 
             overview.innerHTML = `<strong>Summary:</strong> ${item.summary || 'No summary available yet.'}`;
@@ -1571,6 +1566,22 @@
                     // Update the stored item
                     dot._phenomenonItem.timing = newTimeHorizon;
 
+                    // Update category in theme_tags based on new quadrant position
+                    const fixedCategories = ['Strategic', 'Regulatory', 'Operational', 'Financial'];
+                    const currentTags = dot._phenomenonItem.theme_tags || [];
+                    // Remove old category and prepend new one
+                    const nonCategoryTags = currentTags.filter(t => !fixedCategories.includes(t));
+                    dot._phenomenonItem.theme_tags = [newCategory, ...nonCategoryTags];
+
+                    // Also update in the main data store
+                    if (window.latestScanData && window.latestScanData.phenomena) {
+                        const phIndex = dot._phenomenonItem.index;
+                        if (window.latestScanData.phenomena[phIndex]) {
+                            window.latestScanData.phenomena[phIndex].timing = newTimeHorizon;
+                            window.latestScanData.phenomena[phIndex].theme_tags = [newCategory, ...nonCategoryTags];
+                        }
+                    }
+
                     // Update the phenomenon card in the list below the radar
                     const phenomenonIndex = dot._phenomenonItem.index;
                     const phenomenaList = document.getElementById('phenomenaList');
@@ -1578,11 +1589,11 @@
                         const card = phenomenaList.children[phenomenonIndex];
                         const tagsDiv = card.querySelector('.phenomenon-tags');
                         if (tagsDiv) {
-                            const themeTagsHtml = (dot._phenomenonItem.theme_tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+                            const categoryHtml = newCategory ? `<span class="tag">${newCategory}</span>` : '';
                             tagsDiv.innerHTML = `
                                 ${dot._phenomenonItem.type ? `<span class="tag type">${dot._phenomenonItem.type}</span>` : ''}
                                 ${newTimeHorizon ? `<span class="tag horizon">${newTimeHorizon}</span>` : ''}
-                                ${themeTagsHtml}
+                                ${categoryHtml}
                             `;
                         }
                     }
@@ -1808,11 +1819,13 @@
                             <input type="text" id="edit-title-${index}" value="${escapeHtml(phenomenon.title || '')}" oninput="updatePhenomenon(${index}, 'title', this.value)">
                         </div>
                     </div>
-                    <div class="edit-field">
-                        <label for="edit-tags-${index}">Theme Tags (comma-separated)</label>
-                        <input type="text" id="edit-tags-${index}" value="${escapeHtml((phenomenon.theme_tags || []).join(', '))}" oninput="updatePhenomenonTags(${index}, this.value)">
-                    </div>
-                    <div class="edit-field-row" style="grid-template-columns: 1fr 1fr;">
+                    <div class="edit-field-row" style="grid-template-columns: 1fr 1fr 1fr;">
+                        <div class="edit-field">
+                            <label for="edit-category-${index}">Category</label>
+                            <select id="edit-category-${index}" oninput="updatePhenomenonCategory(${index}, this.value)">
+                                ${['Strategic', 'Regulatory', 'Operational', 'Financial'].map(cat => `<option value="${cat}" ${(phenomenon.theme_tags || [])[0] === cat ? 'selected' : ''}>${cat}</option>`).join('')}
+                            </select>
+                        </div>
                         <div class="edit-field">
                             <label for="edit-type-${index}">Signal Type</label>
                             <select id="edit-type-${index}" oninput="updatePhenomenon(${index}, 'type', this.value)">
@@ -1874,9 +1887,9 @@
             }
         }
 
-        function updatePhenomenonTags(index, value) {
+        function updatePhenomenonCategory(index, value) {
             if (editablePhenomena[index]) {
-                editablePhenomena[index].theme_tags = value.split(',').map(t => t.trim()).filter(t => t !== '');
+                editablePhenomena[index].theme_tags = [value];
             }
         }
 
@@ -1935,7 +1948,7 @@
                     <div class="tags">
                         <span class="tag type" style="background: ${typeColors[p.type] || '#00aeef'}20; border-color: ${typeColors[p.type] || '#00aeef'};">${escapeHtml(p.type || 'Unknown')}</span>
                         ${p.timing ? `<span class="tag">${escapeHtml(p.timing)}</span>` : ''}
-                        ${(p.theme_tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                        ${(() => { const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t)); return cat ? `<span class="tag">${escapeHtml(cat)}</span>` : ''; })()}
                     </div>
                     <p class="summary">${escapeHtml(p.summary || '')}</p>
                     ${p.background ? `
