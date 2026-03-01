@@ -833,6 +833,193 @@
             background: rgba(0, 174, 239, 0.3);
             transform: translateY(-1px);
         }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: linear-gradient(135deg, rgba(0,40,60,0.7) 0%, rgba(0,0,0,0.8) 100%);
+            border: 1px solid rgba(0, 174, 239, 0.35);
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-bottom: 28px;
+        }
+
+        .exec-summary-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--lockton-blue);
+            margin-bottom: 16px;
+        }
+
+        .exec-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 760px) {
+            .exec-summary-grid { grid-template-columns: 1fr; }
+        }
+
+        .exec-summary-item {
+            background: rgba(0,0,0,0.35);
+            border-radius: 10px;
+            padding: 14px 16px;
+            border-left: 3px solid var(--lockton-blue);
+        }
+
+        .exec-summary-item.urgent { border-left-color: #F44336; }
+        .exec-summary-item.wildcard { border-left-color: #9E9E9E; }
+
+        .exec-summary-item-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--lockton-silver);
+            margin-bottom: 6px;
+        }
+
+        .exec-summary-item p {
+            color: #e0e0e0;
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        /* Source confidence badge */
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .confidence-high {
+            background: rgba(76, 175, 80, 0.18);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .confidence-medium {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffd54f;
+            border: 1px solid rgba(255, 193, 7, 0.35);
+        }
+
+        .confidence-low {
+            background: rgba(136, 136, 136, 0.18);
+            color: #aaaaaa;
+            border: 1px solid rgba(136, 136, 136, 0.35);
+        }
+
+        /* Scan history */
+        .scan-history {
+            display: none;
+            margin-bottom: 24px;
+        }
+
+        .scan-history.visible { display: block; }
+
+        .scan-history-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--lockton-silver);
+            margin-bottom: 10px;
+        }
+
+        .scan-history-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .scan-history-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 174, 239, 0.25);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--lockton-silver);
+            cursor: pointer;
+            transition: all 0.2s;
+            max-width: 220px;
+        }
+
+        .scan-history-chip:hover {
+            border-color: rgba(0, 174, 239, 0.6);
+            color: var(--lockton-white);
+            background: rgba(0, 174, 239, 0.1);
+        }
+
+        .scan-history-chip-topic {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .scan-history-chip-time {
+            font-size: 0.72rem;
+            color: rgba(136,136,136,0.7);
+            flex-shrink: 0;
+        }
+
+        /* Export dropdown */
+        .export-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .export-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background: rgba(20,20,20,0.97);
+            border: 1px solid rgba(0, 174, 239, 0.35);
+            border-radius: 10px;
+            min-width: 170px;
+            z-index: 50;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .export-menu.open .export-dropdown { display: block; }
+
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 16px;
+            background: none;
+            border: none;
+            color: var(--lockton-white);
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-align: left;
+        }
+
+        .export-option:hover { background: rgba(0,174,239,0.15); }
+
+        .export-option-icon {
+            font-size: 0.9rem;
+            width: 18px;
+            text-align: center;
+            color: var(--lockton-blue);
+        }
+
+        .export-option + .export-option {
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
     </style>
 </head>
 <body>
@@ -872,6 +1059,12 @@
             </div>
         </div>
 
+        <!-- Recent scan history -->
+        <div class="scan-history" id="scanHistory">
+            <div class="scan-history-label">Recent Scans</div>
+            <div class="scan-history-list" id="scanHistoryList"></div>
+        </div>
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p class="loading-text">Analyzing sources... This may take 10-20 seconds.</p>
@@ -882,12 +1075,47 @@
         <div class="results" id="results">
             <div class="results-header">
                 <h2 class="results-title" id="resultsTitle">Results</h2>
-                <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                     <span class="results-count" id="resultsCount">0 phenomena found</span>
                     <button class="download-report-btn" id="editContentBtn" onclick="openEditModal()">Edit Content</button>
-                    <button class="download-report-btn" id="downloadReportBtn" onclick="downloadReport()">Download Report</button>
+                    <div class="export-menu" id="exportMenu">
+                        <button class="download-report-btn" onclick="toggleExportMenu()">Export &#9660;</button>
+                        <div class="export-dropdown" id="exportDropdown">
+                            <button class="export-option" onclick="downloadReport(); toggleExportMenu()">
+                                <span class="export-option-icon">H</span> HTML Report
+                            </button>
+                            <button class="export-option" onclick="exportJson(); toggleExportMenu()">
+                                <span class="export-option-icon">{}</span> JSON Data
+                            </button>
+                            <button class="export-option" onclick="exportCsv(); toggleExportMenu()">
+                                <span class="export-option-icon">,</span> CSV Data
+                            </button>
+                            <button class="export-option" onclick="exportPptx(); toggleExportMenu()">
+                                <span class="export-option-icon">P</span> PowerPoint
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- Executive Summary -->
+            <div class="executive-summary" id="executiveSummary" style="display:none;">
+                <div class="exec-summary-label">Executive Brief</div>
+                <div class="exec-summary-grid">
+                    <div class="exec-summary-item">
+                        <div class="exec-summary-item-label">Dominant Theme</div>
+                        <p id="execThemeText"></p>
+                    </div>
+                    <div class="exec-summary-item urgent">
+                        <div class="exec-summary-item-label">Most Urgent Signal</div>
+                        <p id="execUrgentText"></p>
+                    </div>
+                    <div class="exec-summary-item wildcard">
+                        <div class="exec-summary-item-label">Biggest Wildcard</div>
+                        <p id="execWildcardText"></p>
+                    </div>
+                </div>
+            </div>
+
             <div class="scorecard" id="scorecard">
                 <div class="scorecard-header">
                     <h3 class="scorecard-title" id="scorecardTitle">Select a signal</h3>
@@ -952,6 +1180,7 @@
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/libs/pptxgen.bundle.js"></script>
     <script>
         function linkifyAdditionalInfo(text) {
             // Convert URLs in additional information text into hyperlinks
@@ -1038,6 +1267,22 @@
             document.getElementById('resultsCount').textContent = `${data.phenomena_count} phenomena found • ${sourcesCount} sources`;
             document.getElementById('scorecard').classList.remove('active');
             window.latestScanData = data;
+            window.latestScanTopic = topic;
+
+            // Executive summary
+            const execSection = document.getElementById('executiveSummary');
+            if (data.executive_summary && (data.executive_summary.dominant_theme || data.executive_summary.most_urgent || data.executive_summary.biggest_wildcard)) {
+                document.getElementById('execThemeText').textContent = data.executive_summary.dominant_theme || '';
+                document.getElementById('execUrgentText').textContent = data.executive_summary.most_urgent || '';
+                document.getElementById('execWildcardText').textContent = data.executive_summary.biggest_wildcard || '';
+                execSection.style.display = '';
+            } else {
+                execSection.style.display = 'none';
+            }
+
+            // Persist to sessionStorage
+            saveToHistory(topic, data);
+
             renderRadarMap(data);
 
             const list = document.getElementById('phenomenaList');
@@ -1076,12 +1321,22 @@
                         : '';
 
                     const refId = index + 1;
+                    const confidenceClass = {
+                        'High': 'confidence-high',
+                        'Medium': 'confidence-medium',
+                        'Low': 'confidence-low'
+                    }[phenomenon.source_confidence] || 'confidence-medium';
+                    const confidenceHtml = phenomenon.source_confidence
+                        ? `<span class="confidence-badge ${confidenceClass}">Source: ${phenomenon.source_confidence}</span>`
+                        : '';
+
                     card.innerHTML = `
                         <h3 class="phenomenon-title"><span class="ref-id">${refId}</span>${phenomenon.title || 'Untitled'}</h3>
                         <div class="phenomenon-tags">
                             ${phenomenon.type ? `<span class="tag type">${phenomenon.type}</span>` : ''}
                             ${phenomenon.timing ? `<span class="tag horizon">${phenomenon.timing}</span>` : ''}
                             ${categoryHtml}
+                            ${confidenceHtml}
                         </div>
                         <p class="phenomenon-summary">${phenomenon.summary || ''}</p>
                         ${backgroundHtml}
@@ -2164,6 +2419,224 @@
                 closeEditModal();
             }
         });
+
+        // ── Export menu ────────────────────────────────────────────────────────
+        function toggleExportMenu() {
+            document.getElementById('exportMenu').classList.toggle('open');
+        }
+        // Close export dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('exportMenu');
+            if (!menu.contains(e.target)) {
+                menu.classList.remove('open');
+            }
+        });
+
+        // ── JSON export ────────────────────────────────────────────────────────
+        function exportJson() {
+            if (!window.latestScanData) { alert('No data to export. Please run a scan first.'); return; }
+            const topic = window.latestScanTopic || 'foresight-scan';
+            const payload = {
+                topic,
+                generated: new Date().toISOString(),
+                executive_summary: window.latestScanData.executive_summary || {},
+                phenomena: window.latestScanData.phenomena || [],
+                sources: window.latestScanData.sources || []
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            triggerDownload(blob, `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.json`);
+        }
+
+        // ── CSV export ────────────────────────────────────────────────────────
+        function exportCsv() {
+            if (!window.latestScanData || !window.latestScanData.phenomena) { alert('No data to export. Please run a scan first.'); return; }
+            const topic = window.latestScanTopic || 'foresight-scan';
+            const headers = ['#', 'Title', 'Type', 'Category', 'Timing', 'Source Confidence', 'Summary', 'Background', 'Impact'];
+            const rows = window.latestScanData.phenomena.map((p, i) => {
+                const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t)) || '';
+                return [
+                    i + 1,
+                    p.title || '',
+                    p.type || '',
+                    cat,
+                    p.timing || '',
+                    p.source_confidence || '',
+                    p.summary || '',
+                    p.background || '',
+                    p.impact || ''
+                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+            });
+            const csv = [headers.join(','), ...rows].join('\r\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            triggerDownload(blob, `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.csv`);
+        }
+
+        // ── PowerPoint export (PptxGenJS) ─────────────────────────────────────
+        async function exportPptx() {
+            if (!window.latestScanData || !window.latestScanData.phenomena) { alert('No data to export. Please run a scan first.'); return; }
+            if (typeof PptxGenJS === 'undefined') { alert('PowerPoint library is loading, please try again in a moment.'); return; }
+
+            const topic = window.latestScanTopic || 'Foresight Scan';
+            const data = window.latestScanData;
+            const typeColors = { 'Strengthening': '4CAF50', 'Weakening': '2196F3', 'Established': '9C27B0', 'Weak Signal': '9E9E9E', 'Wild Card': 'F44336' };
+
+            const pptx = new PptxGenJS();
+            pptx.layout = 'LAYOUT_WIDE';
+            pptx.defineLayout({ name: 'WIDE', width: 13.33, height: 7.5 });
+            pptx.layout = 'WIDE';
+
+            const NAVY = '0d245c', BLUE = '00aeef', WHITE = 'FFFFFF', DARK = '111111', SILVER = '888888';
+
+            // ── Title slide ────────────────────────────────────────────────────
+            const titleSlide = pptx.addSlide();
+            titleSlide.background = { color: DARK };
+            titleSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BLUE } });
+            titleSlide.addText('Strategic Foresight Report', { x: 0.7, y: 1.8, w: 12, h: 1, fontSize: 36, bold: true, color: BLUE, fontFace: 'Calibri' });
+            titleSlide.addText(topic, { x: 0.7, y: 2.9, w: 12, h: 0.7, fontSize: 24, color: WHITE, fontFace: 'Calibri' });
+            titleSlide.addText(`Generated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`, { x: 0.7, y: 3.7, w: 10, h: 0.4, fontSize: 14, color: SILVER, fontFace: 'Calibri' });
+            titleSlide.addText(`${data.phenomena.length} phenomena identified`, { x: 0.7, y: 4.1, w: 6, h: 0.4, fontSize: 14, color: SILVER, fontFace: 'Calibri' });
+            titleSlide.addText('Powered by Anthropic Claude via Strategic Foresight Scanner', { x: 0, y: 7.1, w: 13.33, h: 0.35, fontSize: 9, color: SILVER, align: 'center', fontFace: 'Calibri' });
+
+            // ── Executive summary slide ────────────────────────────────────────
+            if (data.executive_summary && data.executive_summary.dominant_theme) {
+                const execSlide = pptx.addSlide();
+                execSlide.background = { color: DARK };
+                execSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 13.33, h: 0.55, fill: { color: NAVY } });
+                execSlide.addText('Executive Brief', { x: 0.4, y: 0.1, w: 12, h: 0.35, fontSize: 14, bold: true, color: BLUE, fontFace: 'Calibri' });
+                const execItems = [
+                    { label: 'Dominant Theme', text: data.executive_summary.dominant_theme, color: BLUE },
+                    { label: 'Most Urgent Signal', text: data.executive_summary.most_urgent, color: 'F44336' },
+                    { label: 'Biggest Wildcard', text: data.executive_summary.biggest_wildcard, color: SILVER }
+                ];
+                execItems.forEach((item, i) => {
+                    const yPos = 0.85 + i * 2.0;
+                    execSlide.addShape(pptx.ShapeType.rect, { x: 0.4, y: yPos, w: 12.5, h: 1.7, fill: { color: '1a1a1a' }, line: { color: item.color, width: 2 } });
+                    execSlide.addText(item.label.toUpperCase(), { x: 0.6, y: yPos + 0.12, w: 12, h: 0.3, fontSize: 9, bold: true, color: item.color, fontFace: 'Calibri', charSpacing: 1 });
+                    execSlide.addText(item.text, { x: 0.6, y: yPos + 0.45, w: 12, h: 1.1, fontSize: 13, color: 'e0e0e0', fontFace: 'Calibri', valign: 'top', wrap: true });
+                });
+            }
+
+            // ── One slide per phenomenon ────────────────────────────────────────
+            data.phenomena.forEach((p, i) => {
+                const slide = pptx.addSlide();
+                slide.background = { color: DARK };
+                slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 13.33, h: 0.55, fill: { color: NAVY } });
+                const dotColor = typeColors[p.type] || BLUE;
+                slide.addShape(pptx.ShapeType.ellipse, { x: 0.3, y: 0.12, w: 0.3, h: 0.3, fill: { color: dotColor } });
+                const refNum = String(i + 1).padStart(2, '0');
+                slide.addText(`${refNum}  ${p.title || 'Untitled'}`, { x: 0.7, y: 0.1, w: 11.5, h: 0.36, fontSize: 15, bold: true, color: WHITE, fontFace: 'Calibri' });
+                // Tags line
+                const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t)) || '';
+                const tagsStr = [p.type, p.timing || 'Timing TBC', cat, p.source_confidence ? `Source: ${p.source_confidence}` : ''].filter(Boolean).join('   |   ');
+                slide.addText(tagsStr, { x: 0.4, y: 0.6, w: 12.5, h: 0.3, fontSize: 10, color: SILVER, fontFace: 'Calibri' });
+                // Summary
+                slide.addText('Summary', { x: 0.4, y: 1.05, w: 12.5, h: 0.28, fontSize: 9, bold: true, color: BLUE, fontFace: 'Calibri', charSpacing: 1 });
+                slide.addText(p.summary || '', { x: 0.4, y: 1.33, w: 12.5, h: 1.3, fontSize: 11, color: 'dddddd', fontFace: 'Calibri', wrap: true, valign: 'top' });
+                // Background
+                if (p.background) {
+                    slide.addText('Background', { x: 0.4, y: 2.75, w: 6.2, h: 0.28, fontSize: 9, bold: true, color: BLUE, fontFace: 'Calibri', charSpacing: 1 });
+                    slide.addText(p.background, { x: 0.4, y: 3.03, w: 6.2, h: 1.55, fontSize: 10.5, color: 'cccccc', fontFace: 'Calibri', wrap: true, valign: 'top' });
+                }
+                // Impact
+                if (p.impact) {
+                    slide.addText('Impact', { x: 6.9, y: 2.75, w: 6.0, h: 0.28, fontSize: 9, bold: true, color: BLUE, fontFace: 'Calibri', charSpacing: 1 });
+                    slide.addText(p.impact, { x: 6.9, y: 3.03, w: 6.0, h: 1.55, fontSize: 10.5, color: 'cccccc', fontFace: 'Calibri', wrap: true, valign: 'top' });
+                }
+                // Additional info
+                if (p.additional_information && p.additional_information.length > 0) {
+                    slide.addText('Additional Information', { x: 0.4, y: 4.7, w: 12.5, h: 0.28, fontSize: 9, bold: true, color: BLUE, fontFace: 'Calibri', charSpacing: 1 });
+                    const infoText = p.additional_information.slice(0, 3).join('\n');
+                    slide.addText(infoText, { x: 0.4, y: 4.98, w: 12.5, h: 1.5, fontSize: 9.5, color: SILVER, fontFace: 'Calibri', wrap: true, valign: 'top' });
+                }
+                // Slide number
+                slide.addText(`${i + 1} / ${data.phenomena.length}`, { x: 12.2, y: 7.2, w: 1.0, h: 0.25, fontSize: 9, color: SILVER, align: 'right', fontFace: 'Calibri' });
+            });
+
+            // ── Disclaimer slide ────────────────────────────────────────────────
+            const disclaimerSlide = pptx.addSlide();
+            disclaimerSlide.background = { color: DARK };
+            disclaimerSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.35, h: 7.5, fill: { color: BLUE } });
+            disclaimerSlide.addText('Disclaimer', { x: 0.7, y: 1.5, w: 12, h: 0.6, fontSize: 24, bold: true, color: BLUE, fontFace: 'Calibri' });
+            disclaimerSlide.addText('This report was generated using a Generative AI tool for internal exploratory analysis only. Outputs must be independently reviewed and validated before any external use.', { x: 0.7, y: 2.4, w: 11.5, h: 1.2, fontSize: 14, color: 'cccccc', fontFace: 'Calibri', wrap: true });
+            disclaimerSlide.addText(`Generated using Anthropic Claude (Sonnet) via Strategic Foresight Scanner with public web sources on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.`, { x: 0.7, y: 3.8, w: 11.5, h: 0.8, fontSize: 12, color: SILVER, fontFace: 'Calibri', wrap: true });
+
+            await pptx.writeFile({ fileName: `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.pptx` });
+        }
+
+        function triggerDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ── Session storage history ─────────────────────────────────────────────
+        const HISTORY_KEY = 'foresightScanHistory';
+        const MAX_HISTORY = 5;
+
+        function saveToHistory(topic, data) {
+            try {
+                const history = getHistory();
+                // Remove existing entry for same topic (case-insensitive)
+                const filtered = history.filter(h => h.topic.toLowerCase() !== topic.toLowerCase());
+                filtered.unshift({ topic, timestamp: Date.now(), data });
+                const trimmed = filtered.slice(0, MAX_HISTORY);
+                sessionStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+                renderScanHistory();
+            } catch (e) { /* sessionStorage might be full */ }
+        }
+
+        function getHistory() {
+            try {
+                return JSON.parse(sessionStorage.getItem(HISTORY_KEY) || '[]');
+            } catch (e) { return []; }
+        }
+
+        function renderScanHistory() {
+            const history = getHistory();
+            const container = document.getElementById('scanHistory');
+            const list = document.getElementById('scanHistoryList');
+            if (history.length === 0) { container.classList.remove('visible'); return; }
+            list.innerHTML = '';
+            history.forEach((entry, idx) => {
+                const chip = document.createElement('div');
+                chip.className = 'scan-history-chip';
+                const timeAgo = formatTimeAgo(entry.timestamp);
+                chip.innerHTML = `<span class="scan-history-chip-topic" title="${entry.topic}">${entry.topic}</span><span class="scan-history-chip-time">${timeAgo}</span>`;
+                chip.addEventListener('click', () => {
+                    document.getElementById('topicInput').value = entry.topic;
+                    updateCharCount();
+                    displayResults(entry.topic, entry.data);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                list.appendChild(chip);
+            });
+            container.classList.add('visible');
+        }
+
+        function formatTimeAgo(timestamp) {
+            const mins = Math.round((Date.now() - timestamp) / 60000);
+            if (mins < 1) return 'just now';
+            if (mins < 60) return `${mins}m ago`;
+            return `${Math.round(mins / 60)}h ago`;
+        }
+
+        // On page load, restore scan history display and last scan if available
+        (function initHistory() {
+            const history = getHistory();
+            if (history.length > 0) {
+                renderScanHistory();
+                // Restore the most recent scan automatically
+                const latest = history[0];
+                document.getElementById('topicInput').value = latest.topic;
+                updateCharCount();
+                displayResults(latest.topic, latest.data);
+            }
+        })();
     </script>
 </body>
 </html>
