@@ -468,7 +468,7 @@
         <div class="char-count" id="charCount" style="margin-top:8px;font-size:0.8rem;color:var(--lockton-silver);">0 / 200 characters</div>
         <div class="attestation" style="margin-top:16px;">
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.9rem;color:var(--lockton-silver);line-height:1.5;">
-                <input type="checkbox" id="attestationCheckbox" name="attestation" value="confirmed" style="margin-top:4px;width:18px;height:18px;flex-shrink:0;accent-color:var(--lockton-blue);cursor:pointer;">
+                <input type="checkbox" id="attestationCheckbox" name="attestation" value="confirmed" form="scanForm" style="margin-top:4px;width:18px;height:18px;flex-shrink:0;accent-color:var(--lockton-blue);cursor:pointer;">
                 <span>I confirm that I am only entering publicly available information and no client, personal, confidential, or proprietary Lockton data.</span>
             </label>
         </div>
@@ -664,6 +664,7 @@ function linkifyAdditionalInfo(text) {
 function setTopic(topic) {
     document.getElementById('topicInput').value = topic;
     updateCharCount();
+    document.getElementById('scanForm').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
 
 function updateCharCount() {
