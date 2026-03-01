@@ -1081,17 +1081,11 @@
                     <div class="export-menu" id="exportMenu">
                         <button class="download-report-btn" onclick="toggleExportMenu()">Export &#9660;</button>
                         <div class="export-dropdown" id="exportDropdown">
-                            <button class="export-option" onclick="downloadReport(); toggleExportMenu()">
-                                <span class="export-option-icon">H</span> HTML Report
-                            </button>
-                            <button class="export-option" onclick="exportJson(); toggleExportMenu()">
-                                <span class="export-option-icon">{}</span> JSON Data
-                            </button>
-                            <button class="export-option" onclick="exportCsv(); toggleExportMenu()">
-                                <span class="export-option-icon">,</span> CSV Data
-                            </button>
                             <button class="export-option" onclick="exportPptx(); toggleExportMenu()">
                                 <span class="export-option-icon">P</span> PowerPoint
+                            </button>
+                            <button class="export-option" onclick="exportPdf(); toggleExportMenu()">
+                                <span class="export-option-icon">&#128196;</span> PDF
                             </button>
                         </div>
                     </div>
@@ -2235,33 +2229,6 @@
             closeEditModal();
         }
 
-        function downloadReport() {
-            if (!window.latestScanData || !window.latestScanData.phenomena) {
-                alert('No data available to download. Please run a scan first.');
-                return;
-            }
-
-            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
-            const phenomena = window.latestScanData.phenomena;
-            const sources = window.latestScanData.sources || [];
-
-            const radarSvg = document.getElementById('radarCanvas').innerHTML;
-
-            // Generate the HTML report
-            const reportHtml = generateReportHtml(topic, phenomena, radarSvg, sources);
-
-            // Create and trigger download
-            const blob = new Blob([reportHtml], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `foresight-report-${topic.toLowerCase().replace(/\s+/g, '-')}.html`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
         function generateReportHtml(topic, phenomena, radarSvg, sources) {
             const typeColors = {
                 'Strengthening': '#4CAF50',
@@ -2432,56 +2399,17 @@
             }
         });
 
-        // ── JSON export ────────────────────────────────────────────────────────
-        function exportJson() {
-            if (!window.latestScanData) { alert('No data to export. Please run a scan first.'); return; }
-            const topic = window.latestScanTopic || 'foresight-scan';
-            const payload = {
-                topic,
-                generated: new Date().toISOString(),
-                executive_summary: window.latestScanData.executive_summary || {},
-                phenomena: window.latestScanData.phenomena || [],
-                sources: window.latestScanData.sources || []
-            };
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            triggerDownload(blob, `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.json`);
-        }
-
-        // ── CSV export ────────────────────────────────────────────────────────
-        function exportCsv() {
-            if (!window.latestScanData || !window.latestScanData.phenomena) { alert('No data to export. Please run a scan first.'); return; }
-            const topic = window.latestScanTopic || 'foresight-scan';
-            const headers = ['#', 'Title', 'Type', 'Category', 'Timing', 'Source Confidence', 'Summary', 'Background', 'Impact'];
-            const rows = window.latestScanData.phenomena.map((p, i) => {
-                const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t)) || '';
-                return [
-                    i + 1,
-                    p.title || '',
-                    p.type || '',
-                    cat,
-                    p.timing || '',
-                    p.source_confidence || '',
-                    p.summary || '',
-                    p.background || '',
-                    p.impact || ''
-                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
-            });
-            const csv = [headers.join(','), ...rows].join('\r\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
-            triggerDownload(blob, `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.csv`);
-        }
-
         // ── PowerPoint export (PptxGenJS) ─────────────────────────────────────
         async function exportPptx() {
             if (!window.latestScanData || !window.latestScanData.phenomena) { alert('No data to export. Please run a scan first.'); return; }
             if (typeof PptxGenJS === 'undefined') { alert('PowerPoint library is loading, please try again in a moment.'); return; }
 
-            const topic = window.latestScanTopic || 'Foresight Scan';
+            const topic = window.latestScanTopic || document.getElementById('topicInput').value.trim() || 'Foresight Scan';
             const data = window.latestScanData;
             const typeColors = { 'Strengthening': '4CAF50', 'Weakening': '2196F3', 'Established': '9C27B0', 'Weak Signal': '9E9E9E', 'Wild Card': 'F44336' };
 
+            try {
             const pptx = new PptxGenJS();
-            pptx.layout = 'LAYOUT_WIDE';
             pptx.defineLayout({ name: 'WIDE', width: 13.33, height: 7.5 });
             pptx.layout = 'WIDE';
 
@@ -2560,7 +2488,30 @@
             disclaimerSlide.addText('This report was generated using a Generative AI tool for internal exploratory analysis only. Outputs must be independently reviewed and validated before any external use.', { x: 0.7, y: 2.4, w: 11.5, h: 1.2, fontSize: 14, color: 'cccccc', fontFace: 'Calibri', wrap: true });
             disclaimerSlide.addText(`Generated using Anthropic Claude (Sonnet) via Strategic Foresight Scanner with public web sources on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.`, { x: 0.7, y: 3.8, w: 11.5, h: 0.8, fontSize: 12, color: SILVER, fontFace: 'Calibri', wrap: true });
 
-            await pptx.writeFile({ fileName: `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.pptx` });
+            const blob = await pptx.write({ outputType: 'blob' });
+            triggerDownload(blob, `foresight-${topic.toLowerCase().replace(/\s+/g, '-')}.pptx`);
+            } catch (err) {
+                console.error('PowerPoint export failed:', err);
+                alert('PowerPoint export failed: ' + err.message);
+            }
+        }
+
+        // ── PDF export ────────────────────────────────────────────────────────
+        function exportPdf() {
+            if (!window.latestScanData || !window.latestScanData.phenomena) {
+                alert('No data available to export. Please run a scan first.');
+                return;
+            }
+            const topic = document.getElementById('topicInput').value.trim() || 'Foresight Scan';
+            const phenomena = window.latestScanData.phenomena;
+            const sources = window.latestScanData.sources || [];
+            const radarSvg = document.getElementById('radarCanvas').innerHTML;
+            const reportHtml = generateReportHtml(topic, phenomena, radarSvg, sources);
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(reportHtml);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => { printWindow.print(); }, 500);
         }
 
         function triggerDownload(blob, filename) {
