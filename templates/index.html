@@ -664,7 +664,6 @@ function linkifyAdditionalInfo(text) {
 function setTopic(topic) {
     document.getElementById('topicInput').value = topic;
     updateCharCount();
-    document.getElementById('scanForm').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 }
 
 function updateCharCount() {

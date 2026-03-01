@@ -194,7 +194,7 @@ Format your response as a JSON array like this:
 Return ONLY the JSON array, no other text."""
 
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=16000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -286,7 +286,7 @@ Return ONLY a JSON object with exactly these three fields (no markdown, no pream
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-6",
             max_tokens=400,
             messages=[{"role": "user", "content": prompt}]
         )
