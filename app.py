@@ -11,6 +11,7 @@ from functools import wraps
 
 import httpx
 import anthropic
+from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 app = Flask(__name__)
@@ -64,7 +65,7 @@ def require_auth(f):
         if not session.get('authenticated'):
             # Return JSON error for AJAX requests instead of redirecting to HTML
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
-               request.content_type == 'multipart/form-data' or \
+               (request.content_type or '').startswith('multipart/form-data') or \
                request.accept_mimetypes.best == 'application/json':
                 return jsonify({'error': 'Session expired. Please refresh the page and log in again.'}), 401
             return redirect(url_for('login'))
@@ -75,40 +76,42 @@ def require_auth(f):
 def search_web(query: str, num_results: int = 10) -> list:
     """Search the web using Serper or Brave API."""
     results = []
+    try:
+        if SERPER_API_KEY:
+            # Use Serper
+            response = httpx.post(
+                "https://google.serper.dev/search",
+                headers={"X-API-KEY": SERPER_API_KEY},
+                json={"q": query, "num": num_results},
+                timeout=15.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                for item in data.get("organic", [])[:num_results]:
+                    results.append({
+                        "title": item.get("title", ""),
+                        "snippet": item.get("snippet", ""),
+                        "link": item.get("link", "")
+                    })
 
-    if SERPER_API_KEY:
-        # Use Serper
-        response = httpx.post(
-            "https://google.serper.dev/search",
-            headers={"X-API-KEY": SERPER_API_KEY},
-            json={"q": query, "num": num_results},
-            timeout=15.0
-        )
-        if response.status_code == 200:
-            data = response.json()
-            for item in data.get("organic", [])[:num_results]:
-                results.append({
-                    "title": item.get("title", ""),
-                    "snippet": item.get("snippet", ""),
-                    "link": item.get("link", "")
-                })
-
-    elif BRAVE_API_KEY:
-        # Use Brave
-        response = httpx.get(
-            "https://api.search.brave.com/res/v1/web/search",
-            headers={"X-Subscription-Token": BRAVE_API_KEY},
-            params={"q": query, "count": num_results},
-            timeout=15.0
-        )
-        if response.status_code == 200:
-            data = response.json()
-            for item in data.get("web", {}).get("results", [])[:num_results]:
-                results.append({
-                    "title": item.get("title", ""),
-                    "snippet": item.get("description", ""),
-                    "link": item.get("url", "")
-                })
+        elif BRAVE_API_KEY:
+            # Use Brave
+            response = httpx.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                headers={"X-Subscription-Token": BRAVE_API_KEY},
+                params={"q": query, "count": num_results},
+                timeout=15.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                for item in data.get("web", {}).get("results", [])[:num_results]:
+                    results.append({
+                        "title": item.get("title", ""),
+                        "snippet": item.get("description", ""),
+                        "link": item.get("url", "")
+                    })
+    except Exception:
+        pass  # Return partial/empty results; caller checks if all_results is empty
 
     return results
 
@@ -369,9 +372,10 @@ def scan_topic():
 
         all_results = []
         results_per_query = 10
-        for query in search_queries:
-            results = search_web(query, num_results=results_per_query)
-            all_results.extend(results)
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(search_web, q, results_per_query) for q in search_queries]
+            for future in futures:
+                all_results.extend(future.result())
 
         if not all_results:
             return jsonify({'error': 'No search results found. Please try a different topic.'}), 400
