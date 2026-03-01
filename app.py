@@ -171,6 +171,7 @@ For each phenomenon, provide:
 6. **Background**: 1-2 sentences outlining the phenomenon's history, relevance, and current state.
 7. **Impact**: 1-2 sentences describing the phenomenon's potential impacts with prominent case examples.
 8. **Additional Information**: 1-3 additional source references (statistics, news articles, journal articles, product releases, or opinion pieces) that provide further context. Each entry should include the article title, the source URL, and a brief description of what the source covers. Format each entry as: "Article Title (URL): description".
+9. **Source Confidence**: Assess the overall quality of sources backing this phenomenon. Return "High" (backed by multiple tier-1 sources such as Reuters, BBC, peer-reviewed journals, WEF, OECD), "Medium" (supported by a credible mix of sources), or "Low" (primarily weaker sources, single references, or speculation-heavy content).
 
 Format your response as a JSON array like this:
 [
@@ -182,7 +183,8 @@ Format your response as a JSON array like this:
     "summary": "Synopsis paragraph here...",
     "background": "History, relevance, and current state here...",
     "impact": "Potential impacts with case examples here...",
-    "additional_information": ["Article Title (https://example.com/article): description of what it covers", "Another Article (https://example.com/article2): description"]
+    "additional_information": ["Article Title (https://example.com/article): description of what it covers", "Another Article (https://example.com/article2): description"],
+    "source_confidence": "High"
   }}
 ]
 
@@ -255,6 +257,52 @@ Return ONLY the JSON array, no other text."""
     }
 
 
+def generate_executive_summary(topic: str, phenomena: list) -> dict:
+    """Generate a 3-sentence executive brief from the identified phenomena."""
+    if not phenomena:
+        return {"dominant_theme": "", "most_urgent": "", "biggest_wildcard": ""}
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=60.0)
+
+    phenomena_text = "\n".join([
+        f"- [{p.get('type', '')}] {p.get('title', '')}: {p.get('summary', '')[:180]}"
+        for p in phenomena[:20]
+    ])
+
+    prompt = f"""You are a strategic foresight analyst. Based on the {len(phenomena)} phenomena identified for the topic "{topic}", write a concise executive brief with exactly 3 sentences covering:
+
+1. The DOMINANT THEME: What overarching pattern or direction connects the majority of these phenomena?
+2. The MOST URGENT SIGNAL: Which single phenomenon demands the most immediate attention, and why?
+3. The BIGGEST WILDCARD: What is the most unexpected or potentially disruptive phenomenon, and what makes it unpredictable?
+
+PHENOMENA:
+{phenomena_text}
+
+Return ONLY a JSON object with exactly these three fields (no markdown, no preamble):
+{{"dominant_theme": "One sentence about the dominant theme.", "most_urgent": "One sentence about the most urgent signal.", "biggest_wildcard": "One sentence about the biggest wildcard."}}"""
+
+    try:
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=400,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        response_text = response.content[0].text.strip()
+        if "```" in response_text:
+            parts = response_text.split("```")
+            inner = parts[1] if len(parts) > 1 else response_text
+            if inner.startswith("json"):
+                inner = inner[4:]
+            response_text = inner.strip()
+        start = response_text.find('{')
+        end = response_text.rfind('}')
+        if start != -1 and end != -1:
+            response_text = response_text[start:end + 1]
+        return json.loads(response_text)
+    except Exception:
+        return {"dominant_theme": "", "most_urgent": "", "biggest_wildcard": ""}
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Password gate."""
@@ -310,10 +358,13 @@ def scan_topic():
         if not SERPER_API_KEY and not BRAVE_API_KEY:
             return jsonify({'error': 'No search API key configured (need SERPER_API_KEY or BRAVE_API_KEY)'}), 500
 
-        # Step 1: Search the web (just 2 quick searches)
+        # Step 1: Search the web (5 targeted queries for broader evidence base)
         search_queries = [
             f"{topic} trends 2024 2025",
-            f"{topic} future predictions emerging"
+            f"{topic} future predictions emerging",
+            f"{topic} risk factors",
+            f"{topic} regulatory changes",
+            f"{topic} industry disruption"
         ]
 
         all_results = []
@@ -334,8 +385,11 @@ def scan_topic():
                 unique_results.append(r)
 
         # Step 2: Analyze with Claude (single API call)
-        analysis_sources = unique_results[:15]
-        analysis = analyze_with_claude(topic, analysis_sources)  # Limit to 15 sources
+        analysis_sources = unique_results[:20]
+        analysis = analyze_with_claude(topic, analysis_sources)
+
+        # Step 3: Generate executive summary (second, lightweight API call)
+        executive_summary = generate_executive_summary(topic, analysis['phenomena'])
 
         return jsonify({
             'success': True,
@@ -343,6 +397,7 @@ def scan_topic():
             'phenomena_count': len(analysis['phenomena']),
             'phenomena': analysis['phenomena'],
             'sources': unique_results,
+            'executive_summary': executive_summary,
             'attestation_timestamp': attestation_time
         })
 
