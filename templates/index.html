@@ -739,6 +739,46 @@
             }
         }
 
+        .edit-remove-btn {
+            background: rgba(244, 67, 54, 0.15);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .edit-remove-btn:hover {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: rgba(244, 67, 54, 0.6);
+        }
+
+        .edit-add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 174, 239, 0.08);
+            border: 1px dashed rgba(0, 174, 239, 0.4);
+            border-radius: 12px;
+            color: var(--lockton-blue);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            margin-bottom: 15px;
+        }
+
+        .edit-add-btn:hover {
+            background: rgba(0, 174, 239, 0.15);
+            border-color: rgba(0, 174, 239, 0.7);
+        }
+
         .download-modal-footer {
             display: flex;
             justify-content: flex-end;
@@ -1802,6 +1842,13 @@
             // Deep copy the phenomena for editing
             editablePhenomena = JSON.parse(JSON.stringify(window.latestScanData.phenomena));
 
+            renderEditModal();
+
+            document.getElementById('downloadModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderEditModal() {
             const modalBody = document.getElementById('downloadModalBody');
             modalBody.innerHTML = '';
 
@@ -1818,6 +1865,7 @@
                             <label for="edit-title-${index}">Title</label>
                             <input type="text" id="edit-title-${index}" value="${escapeHtml(phenomenon.title || '')}" oninput="updatePhenomenon(${index}, 'title', this.value)">
                         </div>
+                        <button class="edit-remove-btn" onclick="removePhenomenon(${index})" title="Remove this trend">Remove</button>
                     </div>
                     <div class="edit-field-row" style="grid-template-columns: 1fr 1fr 1fr;">
                         <div class="edit-field">
@@ -1860,8 +1908,34 @@
                 modalBody.appendChild(editCard);
             });
 
-            document.getElementById('downloadModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Add "Add New Trend" button at the bottom
+            const addBtn = document.createElement('button');
+            addBtn.className = 'edit-add-btn';
+            addBtn.onclick = addNewPhenomenon;
+            addBtn.innerHTML = '+ Add New Trend';
+            modalBody.appendChild(addBtn);
+        }
+
+        function removePhenomenon(index) {
+            editablePhenomena.splice(index, 1);
+            renderEditModal();
+        }
+
+        function addNewPhenomenon() {
+            editablePhenomena.push({
+                title: '',
+                theme_tags: ['Strategic'],
+                type: 'Strengthening',
+                timing: 'Near-term (0-5 years)',
+                summary: '',
+                background: '',
+                impact: '',
+                additional_information: []
+            });
+            renderEditModal();
+            // Scroll to the new card
+            const modalBody = document.getElementById('downloadModalBody');
+            modalBody.scrollTop = modalBody.scrollHeight;
         }
 
         function closeEditModal() {
