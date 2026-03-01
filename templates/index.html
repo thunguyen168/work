@@ -1174,7 +1174,7 @@
         </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/libs/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.7.1/libs/pptxgen.bundle.js"></script>
     <script>
         function linkifyAdditionalInfo(text) {
             // Convert URLs in additional information text into hyperlinks
@@ -2231,46 +2231,49 @@
 
         function generateReportHtml(topic, phenomena, radarSvg, sources) {
             const typeColors = {
-                'Strengthening': '#4CAF50',
-                'Weakening': '#2196F3',
-                'Established': '#9C27B0',
-                'Weak Signal': '#9E9E9E',
-                'Wild Card': '#F44336'
+                'Strengthening': '#2e7d32',
+                'Weakening': '#1565c0',
+                'Established': '#6a1b9a',
+                'Weak Signal': '#546e7a',
+                'Wild Card': '#c62828'
             };
 
-            const phenomenaHtml = phenomena.map((p, i) => `
-                <div class="phenomenon">
+            const phenomenaHtml = phenomena.map((p, i) => {
+                const typeColor = typeColors[p.type] || '#0d245c';
+                const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t));
+                return `
+                <div class="phenomenon" style="border-left-color:${typeColor};">
                     <h3>${i + 1}. ${escapeHtml(p.title || 'Untitled')}</h3>
                     <div class="tags">
-                        <span class="tag type" style="background: ${typeColors[p.type] || '#00aeef'}20; border-color: ${typeColors[p.type] || '#00aeef'};">${escapeHtml(p.type || 'Unknown')}</span>
+                        <span class="tag type" style="background:${typeColor};border-color:${typeColor};">${escapeHtml(p.type || 'Unknown')}</span>
                         ${p.timing ? `<span class="tag">${escapeHtml(p.timing)}</span>` : ''}
-                        ${(() => { const cat = (p.theme_tags || []).find(t => ['Strategic','Regulatory','Operational','Financial'].includes(t)); return cat ? `<span class="tag">${escapeHtml(cat)}</span>` : ''; })()}
+                        ${cat ? `<span class="tag">${escapeHtml(cat)}</span>` : ''}
                     </div>
                     <p class="summary">${escapeHtml(p.summary || '')}</p>
                     ${p.background ? `
-                        <div class="section">
+                        <div class="sub-section">
                             <h4>Background</h4>
-                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.background)}</p>
+                            <p>${escapeHtml(p.background)}</p>
                         </div>
                     ` : ''}
                     ${p.impact ? `
-                        <div class="section">
+                        <div class="sub-section">
                             <h4>Impact</h4>
-                            <p style="color:#d6d6d6;line-height:1.6;">${escapeHtml(p.impact)}</p>
+                            <p>${escapeHtml(p.impact)}</p>
                         </div>
                     ` : ''}
                     ${p.additional_information && p.additional_information.length > 0 ? `
-                        <div class="section">
+                        <div class="sub-section">
                             <h4>Additional Information</h4>
                             <ul>${p.additional_information.map(info => `<li>${linkifyAdditionalInfo(info)}</li>`).join('')}</ul>
                         </div>
                     ` : ''}
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             const sourcesHtml = sources.length > 0 ? `
                 <div class="sources-section">
-                    <h2>Sources</h2>
+                    <h2 class="section-heading">Sources</h2>
                     ${sources.map(s => `
                         <div class="source">
                             <a href="${escapeHtml(s.link)}" target="_blank">${escapeHtml(s.title)}</a>
@@ -2290,83 +2293,112 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            min-height: 100vh;
-            color: #ffffff;
+            background: #ffffff;
+            color: #1a1a1a;
             padding: 40px 20px;
+            line-height: 1.5;
         }
-        .container { max-width: 1000px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2rem; color: #00aeef; margin-bottom: 10px; }
-        .subtitle { color: #888888; font-size: 1rem; }
+        .container { max-width: 960px; margin: 0 auto; }
+        header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            border-bottom: 3px solid #00aeef;
+            padding-bottom: 20px;
+            margin-bottom: 36px;
+        }
+        .header-left {}
+        .report-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: #00aeef; font-weight: 700; margin-bottom: 6px; }
+        h1 { font-size: 1.9rem; color: #0d245c; font-weight: 800; line-height: 1.2; }
+        .header-right { text-align: right; font-size: 0.85rem; color: #666; line-height: 1.7; flex-shrink: 0; margin-left: 24px; }
         .radar-section {
-            background: radial-gradient(ellipse at center, rgba(0, 40, 60, 0.4) 0%, rgba(0, 0, 0, 0.85) 70%);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 40px;
-            border: 1px solid rgba(0, 174, 239, 0.2);
+            background: #f0f8ff;
+            border: 1px solid #bee3f8;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 36px;
         }
-        .radar-title { font-size: 1.2rem; color: #00aeef; margin-bottom: 15px; }
+        .radar-title { font-size: 0.75rem; color: #0d245c; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
         .radar-canvas { max-width: 800px; margin: 0 auto; }
         .radar-canvas svg { width: 100%; height: auto; }
-        h2 { font-size: 1.5rem; color: #00aeef; margin-bottom: 20px; }
-        .phenomenon {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .section-heading {
+            font-size: 1.1rem;
+            color: #0d245c;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8e8e8;
         }
-        .phenomenon h3 { font-size: 1.1rem; color: #ffffff; margin-bottom: 12px; }
-        .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+        .phenomenon {
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+            border-left: 5px solid #0d245c;
+            padding: 18px 22px;
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+        }
+        .phenomenon h3 { font-size: 1rem; color: #0d245c; margin-bottom: 10px; font-weight: 700; }
+        .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
         .tag {
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            background: rgba(136, 136, 136, 0.2);
-            border: 1px solid rgba(136, 136, 136, 0.4);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #e8edf2;
+            color: #444;
+            border: 1px solid #d0d8e0;
         }
         .tag.type { color: #ffffff; }
-        .summary { color: #d6d6d6; line-height: 1.6; margin-bottom: 15px; }
-        .section { margin-top: 15px; }
-        .section h4 { font-size: 0.85rem; color: #888888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .section ul { list-style: none; padding-left: 15px; }
-        .section li { color: #d6d6d6; padding: 4px 0; position: relative; }
-        .section li::before { content: "→"; position: absolute; left: -15px; color: #00aeef; }
-        .sources-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .source { padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .source a { color: #00aeef; text-decoration: none; }
+        .summary { color: #222; line-height: 1.65; margin-bottom: 10px; font-size: 0.95rem; }
+        .sub-section { margin-top: 12px; }
+        .sub-section h4 { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; font-weight: 700; }
+        .sub-section p { color: #444; font-size: 0.9rem; line-height: 1.6; }
+        .sub-section ul { list-style: none; padding-left: 14px; }
+        .sub-section li { color: #444; padding: 3px 0; font-size: 0.9rem; position: relative; }
+        .sub-section li::before { content: "→"; position: absolute; left: -14px; color: #00aeef; }
+        .sub-section a { color: #0d245c; }
+        .sources-section { margin-top: 36px; padding-top: 20px; border-top: 2px solid #e0e0e0; }
+        .source { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .source a { color: #0d245c; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
         .source a:hover { text-decoration: underline; }
-        .source p { font-size: 0.9rem; color: #888888; margin-top: 5px; }
-        footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); color: #888888; font-size: 0.85rem; }
+        .source p { font-size: 0.85rem; color: #666; margin-top: 4px; }
+        footer { text-align: center; margin-top: 36px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #888; font-size: 0.8rem; line-height: 1.7; }
         @media print {
-            body { background: white; color: black; }
-            .phenomenon { border: 1px solid #ddd; background: #f9f9f9; }
-            .tag { border: 1px solid #ccc; }
+            body { padding: 20px; }
+            .phenomenon { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Strategic Foresight Report</h1>
-            <p class="subtitle">${escapeHtml(topic)} - Generated ${new Date().toLocaleDateString()}</p>
+            <div class="header-left">
+                <p class="report-label">Strategic Foresight Report</p>
+                <h1>${escapeHtml(topic)}</h1>
+            </div>
+            <div class="header-right">
+                <span>Generated ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span><br>
+                <span>${phenomena.length} phenomena identified</span>
+            </div>
         </header>
 
         <div class="radar-section">
-            <h3 class="radar-title">Strategic Radar Map</h3>
+            <p class="radar-title">Strategic Radar Map</p>
             <div class="radar-canvas">${radarSvg}</div>
         </div>
 
-        <h2>Identified Phenomena (${phenomena.length})</h2>
+        <h2 class="section-heading">Identified Phenomena (${phenomena.length})</h2>
         ${phenomenaHtml}
 
         ${sourcesHtml}
 
         <footer>
-            <p style="margin-bottom:10px;">This report was generated using a Generative AI tool for internal exploratory analysis only.<br>
+            <p>This report was generated using a Generative AI tool for internal exploratory analysis only.<br>
             Outputs must be independently reviewed and validated before any external use.</p>
-            <p style="margin-top:10px;">Generated using Anthropic Claude (Sonnet), via Strategic Foresight Scanner, with public web sources, on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. Outputs reviewed by Strategic Risk Team.</p>
+            <p style="margin-top:8px;">Generated using Anthropic Claude (Sonnet), via Strategic Foresight Scanner, with public web sources, on ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}. Outputs reviewed by Strategic Risk Team.</p>
         </footer>
     </div>
 </body>
