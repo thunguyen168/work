@@ -283,6 +283,26 @@
             font-size: 0.9rem; line-height: 1.5;
         }
         .radar-summary strong { color: var(--lockton-white); }
+        .exec-summary-header {
+            font-size: 0.72rem; color: var(--lockton-blue); text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 600; margin-bottom: 12px;
+        }
+        .exec-summary-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+        }
+        @media (max-width: 700px) { .exec-summary-grid { grid-template-columns: 1fr; } }
+        .exec-summary-item {
+            padding: 12px 14px; border-radius: 8px;
+            background: rgba(0,0,0,0.35); border-left: 3px solid;
+        }
+        .exec-summary-item.theme  { border-left-color: var(--lockton-blue); }
+        .exec-summary-item.urgent { border-left-color: var(--signal-red); }
+        .exec-summary-item.wildcard { border-left-color: var(--signal-amber); }
+        .exec-summary-label {
+            font-size: 0.68rem; color: var(--lockton-silver); text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 600;
+        }
+        .exec-summary-text { font-size: 0.85rem; color: #d6d6d6; line-height: 1.55; }
         .radar-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
         .radar-title { font-size: 1.2rem; color: var(--lockton-blue); }
         .radar-subtitle { font-size: 0.85rem; color: var(--lockton-silver); }
@@ -821,21 +841,50 @@ function renderSignalMonitor(toneData, topic) {
     const volumes = timeline.map(d => parseInt(d.topcounts || d.Count || 0, 10));
 
     const avgTone = tones.length > 0 ? tones.reduce((a,b) => a+b, 0) / tones.length : 0;
-    const recentTone = tones.slice(-2).reduce((a,b) => a+b, 0) / (tones.slice(-2).length || 1);
-    const toneDirection = recentTone > avgTone ? 'rising' : recentTone < avgTone ? 'falling' : 'stable';
+    const recentTone = tones.slice(-3).reduce((a,b) => a+b, 0) / (tones.slice(-3).length || 1);
+    const toneDirection = recentTone > avgTone + 0.3 ? 'rising' : recentTone < avgTone - 0.3 ? 'falling' : 'stable';
 
     const maxVol = Math.max(...volumes, 1);
-    const recentVol = volumes.slice(-1)[0] || 0;
+    // Use trailing 3-period average to smooth out partial/incomplete latest intervals
+    const recentSlice = volumes.slice(-3).filter(v => v > 0);
+    const recentVol = recentSlice.length > 0 ? recentSlice.reduce((a,b) => a+b, 0) / recentSlice.length : 0;
     const avgVol = volumes.length > 0 ? volumes.reduce((a,b) => a+b, 0) / volumes.length : 0;
     const volMomentum = avgVol > 0 ? (recentVol / avgVol) : 1;
+
+    // Derive actual days of data from date stamps rather than entry count
+    function gdeltDateToObj(s) {
+        if (!s) return null;
+        const str = String(s);
+        return new Date(
+            parseInt(str.slice(0,4)), parseInt(str.slice(4,6)) - 1, parseInt(str.slice(6,8))
+        );
+    }
+    let freshnessLabel = timeline.length + ' data points';
+    let freshnessValue = timeline.length > 5 ? 90 : timeline.length > 2 ? 60 : 30;
+    let freshnessColor = timeline.length > 5 ? '#4CAF50' : '#FF9800';
+    if (timeline.length >= 2) {
+        const d0 = gdeltDateToObj(timeline[0].Date || timeline[0].date);
+        const d1 = gdeltDateToObj(timeline[timeline.length - 1].Date || timeline[timeline.length - 1].date);
+        if (d0 && d1 && !isNaN(d0) && !isNaN(d1)) {
+            const spanDays = Math.max(1, Math.round(Math.abs(d1 - d0) / 86400000) + 1);
+            freshnessLabel = spanDays + (spanDays === 1 ? ' day' : ' days') + ' of data';
+            freshnessValue = spanDays >= 7 ? 90 : spanDays >= 3 ? 70 : 40;
+            freshnessColor = spanDays >= 7 ? '#4CAF50' : '#FF9800';
+        }
+    }
+
+    // Media volume display: show smoothed count or 'Low coverage'
+    const volDisplayUnit = recentVol > 0
+        ? Math.round(recentVol) + ' articles/period'
+        : (volumes.some(v => v > 0) ? 'Below baseline' : 'Low coverage');
 
     // Build 5 signal bars
     const signals = [
         {
             label: 'Media Volume',
             value: Math.min(100, Math.round((recentVol / maxVol) * 100)),
-            color: recentVol > avgVol * 1.3 ? '#F44336' : recentVol > avgVol * 0.8 ? '#FF9800' : '#4CAF50',
-            unit: recentVol > 0 ? recentVol + ' articles today' : 'Low coverage'
+            color: recentVol > avgVol * 1.3 ? '#F44336' : recentVol > avgVol * 0.6 ? '#FF9800' : '#4CAF50',
+            unit: volDisplayUnit
         },
         {
             label: 'Sentiment Tone',
@@ -846,8 +895,8 @@ function renderSignalMonitor(toneData, topic) {
         },
         {
             label: 'Signal Velocity',
-            // Momentum: how much above/below average is recent volume
-            value: Math.min(100, Math.max(0, Math.round(volMomentum * 50))),
+            // Scale: 50 = at average, 100 = 2× average, 0 = no volume
+            value: Math.min(100, Math.max(0, Math.round(Math.min(volMomentum, 2) * 50))),
             color: volMomentum > 1.3 ? '#F44336' : volMomentum > 0.8 ? '#FF9800' : '#2196F3',
             unit: volMomentum > 1.3 ? 'Accelerating ▲' : volMomentum < 0.7 ? 'Decelerating ▼' : 'Steady →'
         },
@@ -859,9 +908,9 @@ function renderSignalMonitor(toneData, topic) {
         },
         {
             label: 'Data Freshness',
-            value: timeline.length > 5 ? 90 : timeline.length > 2 ? 60 : 30,
-            color: timeline.length > 5 ? '#4CAF50' : '#FF9800',
-            unit: timeline.length + ' days of data'
+            value: freshnessValue,
+            color: freshnessColor,
+            unit: freshnessLabel
         }
     ];
 
@@ -967,12 +1016,18 @@ function renderMapMarkers(features) {
         if (isNaN(lat) || isNaN(lng)) return;
         const key = `${Math.round(lat)},${Math.round(lng)}`;
         if (!clusters[key]) {
-            clusters[key] = { lat, lng, count: 0, titles: [], avgTone: 0, tones: [] };
+            clusters[key] = { lat, lng, count: 0, titles: [], avgTone: 0, tones: [], articles: [] };
         }
         clusters[key].count++;
         const props = f.properties || {};
         if (props.name) clusters[key].titles.push(props.name);
         if (props.tone !== undefined) clusters[key].tones.push(parseFloat(props.tone));
+        // Collect article link details where available
+        const url = props.Url || props.url || props.URL || '';
+        const domain = props.Domain || props.domain || (url ? (() => { try { return new URL(url).hostname.replace(/^www\./,''); } catch(e) { return ''; } })() : '');
+        if (url || props.name) {
+            clusters[key].articles.push({ title: props.name || '', url, domain });
+        }
     });
 
     const clusterList = Object.values(clusters);
@@ -1002,18 +1057,37 @@ function renderMapMarkers(features) {
         });
 
         const sentimentLabel = cluster.avgTone > 1 ? '📈 Positive' : cluster.avgTone < -1 ? '📉 Negative' : '➡ Neutral';
-        const topTitles = cluster.titles.slice(0, 3).map(t => `<li style="margin:3px 0;font-size:0.82rem;">${escapeHtml(t)}</li>`).join('');
+        const sentimentWord = cluster.avgTone > 1 ? 'positive' : cluster.avgTone < -1 ? 'critical' : 'mixed';
+        const intensity = cluster.count >= 15 ? 'Elevated media attention' : cluster.count >= 5 ? 'Active reporting' : 'Emerging coverage';
+        const overviewText = `${intensity} in this region — ${cluster.count} event${cluster.count !== 1 ? 's' : ''} tracked with ${sentimentWord} sentiment.`;
+
+        // Build media source list (deduplicate by URL, prefer entries with URLs)
+        const seen = new Set();
+        const sourceLinks = cluster.articles
+            .filter(a => { const k = a.url || a.title; if (!k || seen.has(k)) return false; seen.add(k); return true; })
+            .slice(0, 5)
+            .map(a => {
+                const label = escapeHtml((a.title || 'Article').slice(0, 80) + (a.title && a.title.length > 80 ? '…' : ''));
+                const meta = a.domain ? `<span style="color:#888;font-size:0.72rem;"> — ${escapeHtml(a.domain)}</span>` : '';
+                return a.url
+                    ? `<div style="margin:5px 0;"><a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="color:#00aeef;text-decoration:none;font-size:0.8rem;line-height:1.4;">${label}</a>${meta}</div>`
+                    : `<div style="margin:5px 0;color:#ccc;font-size:0.8rem;line-height:1.4;">${label}${meta}</div>`;
+            }).join('');
 
         marker.bindPopup(`
-            <div style="min-width:200px;">
-                <div style="font-weight:700;color:#00aeef;margin-bottom:6px;font-size:0.95rem;">
+            <div style="min-width:230px;max-width:300px;">
+                <div style="font-weight:700;color:#00aeef;margin-bottom:3px;font-size:0.95rem;">
                     ${cluster.count} event${cluster.count !== 1 ? 's' : ''} detected
                 </div>
-                <div style="font-size:0.8rem;color:#aaa;margin-bottom:8px;">Sentiment: ${sentimentLabel}</div>
-                ${topTitles ? `<ul style="padding-left:14px;color:#ddd;">${topTitles}</ul>` : ''}
-                <div style="font-size:0.75rem;color:#666;margin-top:8px;">Coordinates: ${cluster.lat.toFixed(2)}, ${cluster.lng.toFixed(2)}</div>
+                <div style="font-size:0.8rem;color:#aaa;margin-bottom:8px;">${sentimentLabel}</div>
+                <div style="font-size:0.82rem;color:#ccc;line-height:1.5;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                    ${overviewText}
+                </div>
+                ${sourceLinks ? `
+                <div style="font-size:0.68rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;font-weight:600;">Media Sources</div>
+                ${sourceLinks}` : ''}
             </div>`, {
-            maxWidth: 280
+            maxWidth: 320
         });
 
         marker.addTo(mapInstance);
@@ -1484,11 +1558,32 @@ function renderRadarMap(data) {
     horizons.forEach(h=>{const row=document.createElement('div');row.className='legend-item';row.innerHTML=`<span class="legend-swatch" style="background:#888"></span>${h}`;hGroup.appendChild(row);});
     legend.appendChild(hGroup);
 
-    const sc=data.sources?data.sources.length:0;
-    const hCounts=horizons.map(h=>{const c=items.filter(i=>i.timing===h).length;return `${c} ${h.split(' ')[0].toLowerCase()}-term`;}).join(', ');
-    const topSrcStr=getTopSources(data.sources||[]).map(s=>s.title).filter(Boolean).join('; ');
-    const leadH=horizons.sort((a,b)=>items.filter(i=>i.timing===b).length-items.filter(i=>i.timing===a).length)[0];
-    summary.innerHTML=`<strong>${items.length} phenomena</strong> mapped across Strategic, Regulatory, Operational, and Financial dimensions, concentrated in the <strong>${leadH.toLowerCase()}</strong> horizon. Distribution: ${hCounts}. Evidence drawn from <strong>${sc} sources</strong>${topSrcStr?`, led by ${topSrcStr}`:''}.`;
+    // Executive Summary — prefer the AI-generated brief, fall back to stat overview
+    const execSum = data.executive_summary || (window.latestScanData && window.latestScanData.executive_summary);
+    if (execSum && (execSum.dominant_theme || execSum.most_urgent || execSum.biggest_wildcard)) {
+        summary.innerHTML = `
+            <div class="exec-summary-header">Executive Summary</div>
+            <div class="exec-summary-grid">
+                <div class="exec-summary-item theme">
+                    <div class="exec-summary-label">Dominant Theme</div>
+                    <div class="exec-summary-text">${escapeHtml(execSum.dominant_theme || '—')}</div>
+                </div>
+                <div class="exec-summary-item urgent">
+                    <div class="exec-summary-label">Most Urgent Signal</div>
+                    <div class="exec-summary-text">${escapeHtml(execSum.most_urgent || '—')}</div>
+                </div>
+                <div class="exec-summary-item wildcard">
+                    <div class="exec-summary-label">Biggest Wildcard</div>
+                    <div class="exec-summary-text">${escapeHtml(execSum.biggest_wildcard || '—')}</div>
+                </div>
+            </div>`;
+    } else {
+        const sc=data.sources?data.sources.length:0;
+        const hCounts=horizons.map(h=>{const c=items.filter(i=>i.timing===h).length;return `${c} ${h.split(' ')[0].toLowerCase()}-term`;}).join(', ');
+        const topSrcStr=getTopSources(data.sources||[]).map(s=>s.title).filter(Boolean).join('; ');
+        const leadH=[...horizons].sort((a,b)=>items.filter(i=>i.timing===b).length-items.filter(i=>i.timing===a).length)[0];
+        summary.innerHTML=`<strong>${items.length} phenomena</strong> mapped across Strategic, Regulatory, Operational, and Financial dimensions, concentrated in the <strong>${leadH.toLowerCase()}</strong> horizon. Distribution: ${hCounts}. Evidence drawn from <strong>${sc} sources</strong>${topSrcStr?`, led by ${topSrcStr}`:''}.`;
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
