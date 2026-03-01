@@ -459,8 +459,8 @@
     </header>
 
     <div class="search-box">
-        <form class="search-form" id="scanForm">
-            <input type="text" class="search-input" id="topicInput"
+        <form class="search-form" id="scanForm" method="post" action="/scan">
+            <input type="text" class="search-input" id="topicInput" name="topic"
                    placeholder="Enter a topic to analyze (e.g., artificial intelligence in healthcare)"
                    maxlength="200" required>
             <button type="submit" class="scan-button" id="scanButton">Run Analysis</button>
@@ -468,7 +468,7 @@
         <div class="char-count" id="charCount" style="margin-top:8px;font-size:0.8rem;color:var(--lockton-silver);">0 / 200 characters</div>
         <div class="attestation" style="margin-top:16px;">
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.9rem;color:var(--lockton-silver);line-height:1.5;">
-                <input type="checkbox" id="attestationCheckbox" style="margin-top:4px;width:18px;height:18px;flex-shrink:0;accent-color:var(--lockton-blue);cursor:pointer;">
+                <input type="checkbox" id="attestationCheckbox" name="attestation" value="confirmed" style="margin-top:4px;width:18px;height:18px;flex-shrink:0;accent-color:var(--lockton-blue);cursor:pointer;">
                 <span>I confirm that I am only entering publicly available information and no client, personal, confidential, or proprietary Lockton data.</span>
             </label>
         </div>
