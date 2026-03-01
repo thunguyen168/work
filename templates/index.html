@@ -1109,8 +1109,8 @@ function renderMapMarkers(features) {
 
         const sentimentLabel = cluster.avgTone > 1 ? '📈 Positive' : cluster.avgTone < -1 ? '📉 Negative' : '➡ Neutral';
         const sentimentWord = cluster.avgTone > 1 ? 'positive' : cluster.avgTone < -1 ? 'critical' : 'mixed';
-        const intensity = cluster.count >= 15 ? 'Elevated media attention' : cluster.count >= 5 ? 'Active reporting' : 'Emerging coverage';
-        const overviewText = `${intensity} in this region — ${cluster.count} event${cluster.count !== 1 ? 's' : ''} tracked with ${sentimentWord} sentiment.`;
+        const activityLabel = cluster.count >= 15 ? 'Elevated media attention' : cluster.count >= 5 ? 'Active reporting' : 'Emerging coverage';
+        const overviewText = `${activityLabel} in this region — ${cluster.count} event${cluster.count !== 1 ? 's' : ''} tracked with ${sentimentWord} sentiment.`;
 
         // Build media source list (deduplicate by URL, prefer entries with URLs)
         const seen = new Set();
